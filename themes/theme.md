@@ -1,1 +1,43 @@
 https://github.com/monniya/hexo-theme-new-vno.git
+
+menu:
+  #Archives: /archives
+  收藏: /favourite
+  时光机: /favourite/time.html
+  幻想间: /favourite/image.html
+  关于我: /aboutme
+rss: /atom.xml
+description: 
+social:
+  weibo: 
+  github: https://github.com/wellcheng
+  stack_overflow: 
+  facebook: 
+  twitter: https://twitter.com/wellcheng
+  google_plus: 
+
+page_comment: true
+logo: /images/avatar.jpg
+background:
+  cover: /images/background-cover.jpg
+  color: cover-purple
+
+archive_date_format: MMM DD
+fancybox: true
+
+duoshuo_shortname: 
+
+google_analytics: UA-137866280-1
+baidu_tongji: ad4ae9e95896a205d89fe7aeaec16c18
+favicon: /images/avatar-small.png
+
+#mathjax
+mathjax: true
+
+# 'Read more' button
+excerpt_link: 继续阅读
+
+# Footer message
+site_license: 本站点采用 <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>
+theme_message: 基于 <a href="http://hexo.io">Hexo</a> 搭建，使用 <a href="https://github.com/monniya/hexo-theme-new-vno ">new-vno</a> 主题，由<a href="https://monniya.com ">@Monniya</a> 修改自 <a href="https://github.com/lenbo-ma/hexo-theme-vno" target="_blank">Vno</a>, 原创出自<a href="http://github.com/onevcat/vno" target="_blank">onevcat</a>
+
