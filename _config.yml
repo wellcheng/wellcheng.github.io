@@ -81,4 +81,4 @@ theme: new-vno
 deploy:
   type: git
   repo: git@github.com:wellcheng/wellcheng.github.io.git
-  branch: gh-pages
+  branch: master
