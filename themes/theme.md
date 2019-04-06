@@ -1,0 +1,1 @@
+https://github.com/monniya/hexo-theme-new-vno.git
