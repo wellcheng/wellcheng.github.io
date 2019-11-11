@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2015/2015-04-30-autolayout-du-shu-bi-ji-san-ke-shi-hua-ge-shi/" />
+  <link rel="next" href="https://example.com/2015/2015-05-08-ios-bing-fa-bian-cheng-zhi-nan-si-dispatch-sources/" />
+  <link rel="canonical" href="https://example.com/2015/2015-05-02-swift-xue-xi-bi-ji-2/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           Swift 学习笔记（二） | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="Swift 学习笔记（二） | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "Swift 学习笔记（二）",
+    "headline" : "Swift 学习笔记（二）",
+    "description" : "\x3cp\x3e今天学习一些基本运算符想关的知识。运算符是检查、改变、合并值的特殊符号或短语。\x3c\/p\x3e\n\n\x3cp\x3e另一个很重要的地方是将以前变成容易因为运算法导致的问题解决了一哈。增加了区间运算符，还加入了 OC 中没有的运算符重载\x3c\/p\x3e",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2015",
+    "datePublished": "2015-05-02 00:00:00 \x2b0000 UTC",
+    "dateModified" : "2015-05-02 00:00:00 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2015\/2015-05-02-swift-xue-xi-bi-ji-2\/",
+    "wordCount" : "109",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Swift 学习笔记（二）</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2015-05-02 itemprop="datePublished">May 2, 2015</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          <p>今天学习一些基本运算符想关的知识。运算符是检查、改变、合并值的特殊符号或短语。</p>
+
+<p>另一个很重要的地方是将以前变成容易因为运算法导致的问题解决了一哈。增加了区间运算符，还加入了 OC 中没有的运算符重载</p>
+
+<h2 id="基本运算符">基本运算符</h2>
+
+<p>运算符有一元、二元、三元运算符，其中元表示操作对象的数目。</p>
+
+<h3 id="赋值运算符">赋值运算符</h3>
+
+<p>跟其他语言一样，使用 <code>=</code> 来赋值。</p>
+
+<p>赋值右边为元组时，元素被分解：</p>
+
+<pre><code>let (x, y) = (1, 2)
+// x = 1, y = 2
+</code></pre>
+
+<p>与 C 语言和 Objective-C 不同，Swift 中的赋值操作不返回任何值，这样子就避免了在 if 语句中经常发生的错误：</p>
+
+<pre><code>if (x = y) {
+    // 编译器报错
+}
+</code></pre>
+
+<h3 id="算术运算法">算术运算法</h3>
+
+<p>支持基本四则算术运算：加减乘除。Swift 默认情况下不支持数值运算中的溢出，可参照 <code>溢出运算符</code></p>
+
+<p>加法用于 <code>String</code> 类型拼接：</p>
+
+<pre><code>var helloWorld = &quot;hello&quot; + &quot; &quot; + &quot;world&quot; + &quot;!&quot;
+// helloWorld = &quot;hello world!&quot;
+</code></pre>
+
+<h4 id="取余运算符">取余运算符</h4>
+
+<p>这个没有很大的变化，对负数取余时，会忽略其负号，即 <code>a % b</code> 和 <code>a % -b</code> 结果相同</p>
+
+<p>不同于 C 语言，Swift 是可以对浮点数进行求余运算的（实际中有什么用处呢？），其计算原理仍然是先得到最大的倍数，然后得到余数作为结果，不过这个余数是 Double 类型的。</p>
+
+<h4 id="自增自减运算符">自增自减运算符</h4>
+
+<p>自增（++）自减（&ndash;）操作都是操作数本身加 1 或者减 1 ，不过在 Swift 中对浮点数也可操作。</p>
+
+<p>如果只是对操作数本身做增加减少操作，前置后置都行</p>
+
+<p>如果需要需要使用返回值，那么需要注意</p>
+
+<ul>
+<li>++ 前置，先自增后返回</li>
+<li>++ 后置，先返回后自增</li>
+</ul>
+
+<p>一般如果不使用后置的特性，推荐使用前置写法 <code>++ a</code> 更加明确表达意图</p>
+
+<h4 id="一元负号运算符">一元负号运算符</h4>
+
+<h3 id="组合赋值运算-compound-assignment-operators">组合赋值运算（Compound Assignment Operators）</h3>
+
+<h3 id="比较运算符">比较运算符</h3>
+
+<h3 id="三目运算符">三目运算符</h3>
+
+<h3 id="空合运算符">空合运算符</h3>
+
+<h3 id="区间运算符">区间运算符</h3>
+
+<h3 id="逻辑运算符">逻辑运算符</h3>
+
+<h2 id="控制流">控制流</h2>
+
+<h3 id="loop">Loop</h3>
+
+<h3 id="switch">switch</h3>
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2015/2015-05-02-swift-xue-xi-bi-ji-2/>https://example.com/2015/2015-05-02-swift-xue-xi-bi-ji-2/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2015/2015-04-30-autolayout-du-shu-bi-ji-san-ke-shi-hua-ge-shi/" class="prev" rel="prev" title="AutoLayout 读书笔记(三)-可视化格式"><i class="iconfont icon-left"></i>&nbsp;AutoLayout 读书笔记(三)-可视化格式</a>
+         
+        
+        <a href="https://example.com/2015/2015-05-08-ios-bing-fa-bian-cheng-zhi-nan-si-dispatch-sources/" class="next" rel="next" title="iOS 并发编程指南(四)-Dispatch Sources">iOS 并发编程指南(四)-Dispatch Sources&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    <script src="/js/vendor_no_gallery.min.js" async=""></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

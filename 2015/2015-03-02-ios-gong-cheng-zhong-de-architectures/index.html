@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  
+  <link rel="next" href="https://example.com/2015/2015-03-02-64-bit-transition-guide-for-cocoa-touch-yi-wen-ru-he-rang-ni-de-app-zhi-chi-64wei/" />
+  <link rel="canonical" href="https://example.com/2015/2015-03-02-ios-gong-cheng-zhong-de-architectures/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           iOS 工程中的 Architectures | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="iOS 工程中的 Architectures | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "iOS 工程中的 Architectures",
+    "headline" : "iOS 工程中的 Architectures",
+    "description" : "\x3ch2 id=\x22arm-是什么\x22\x3eArm 是什么\x3c\/h2\x3e\n\n\x3cp\x3eArm 处理器是 Arm 公司面向市场推出的 RISC(精简指令集) 微处理器，目前手机上的 CPU 都是 RISC 类型，跟传统 PC 端的 CPU(CISC) 相比，具有体积小、低功耗、低成本、高性能的特点，很适合于移动终端。一般电脑上的 CPU 都是 CISC 类型的，iOS 模拟器是将 Arm 指令转换后在 X86 上运行。另外，Apple 本身就是 ARM 最大的股东之一。\x3c\/p\x3e",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2015",
+    "datePublished": "2015-03-02 00:00:00 \x2b0000 UTC",
+    "dateModified" : "2015-03-02 00:00:00 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2015\/2015-03-02-ios-gong-cheng-zhong-de-architectures\/",
+    "wordCount" : "195",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">iOS 工程中的 Architectures</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2015-03-02 itemprop="datePublished">March 2, 2015</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+            
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          <h2 id="arm-是什么">Arm 是什么</h2>
+
+<p>Arm 处理器是 Arm 公司面向市场推出的 RISC(精简指令集) 微处理器，目前手机上的 CPU 都是 RISC 类型，跟传统 PC 端的 CPU(CISC) 相比，具有体积小、低功耗、低成本、高性能的特点，很适合于移动终端。一般电脑上的 CPU 都是 CISC 类型的，iOS 模拟器是将 Arm 指令转换后在 X86 上运行。另外，Apple 本身就是 ARM 最大的股东之一。</p>
+
+<h2 id="apple-系列产品的-arm-架构">Apple 系列产品的 Arm 架构</h2>
+
+<p>Armv6 的设备有</p>
+
+<p><code>iPhone 1,2,3 代</code>、 <code>iPod 1,2 代</code></p>
+
+<p>Armv7 的设备有</p>
+
+<p><code>iPhone 3GS</code>、<code>iPhone 4</code>、<code>iPhone 4s</code>、</p>
+
+<p><code>iPad</code>、<code>iPad 2</code>、<code>(iPad 3)the new iPad</code>、<code>iPad mini</code>、</p>
+
+<p><code>iPod touch 3G</code>、<code>iPod touch 4</code></p>
+
+<p>Armv7s 的设备有</p>
+
+<p><code>iPhone 5</code>、<code>iPhone 5c</code>
+<code>iPad 4</code></p>
+
+<p>Arm64 的设备有 <code>iPhone 5s</code>、<code>iPhone 6</code>、<code>iPhone 6 plus</code></p>
+
+<p><code>iPad mini 2</code>、<code>iPad mini 3</code>、<code>iPad Air</code>、<code>iPad Air 2</code></p>
+
+<p>可以看到，再以后的产品线中，应该全部都是支持 64 位了，如果是这样子，App 如果不支持64位，那么处理器再厉害也是白搭，性能损耗太大，苹果今年（2015）有关新上线 App 必须支持64位的决定也是有一定道理的。有关 App 如何支持64位的博客我会尽快的翻译官方的 GUI。</p>
+
+<h2 id="xcode-中的-architectures-配置">Xcode 中的 Architectures 配置</h2>
+
+<p>Xcode 中有关指令集的配置如下图所示：</p>
+
+<p><figure><img src="/images/ring.svg" data-sizes="auto" data-src="http://7vzucb.com1.z0.glb.clouddn.com/blog.Architectures.png" alt="Architectures Xcode 截图" class="lazyload"><figcaption class="image-caption">Architectures Xcode 截图</figcaption></figure></p>
+
+<p>####Architectures:</p>
+
+<p>表示工程将被编译成支持哪些指令集，支持指令集是通过编译生成对应的二进制数据包实现的，如果选择支持多个指令集，会造成编译出的数据包很大。Xcode 6 目前的默认设置为 <code>$(ARCHS_STANDARD)(armv7,arm64)</code> ,armv7 包含了 Apple 的绝大数产品线，不包含的基本上已经被市场淘汰了，但是如果选择 armv7s，那么支持的 iOS 设备将会减少很多，另外 armv7 和 armv7s 性能差异比较小，所以 Apple 选择了 armv7，不排除以后 Xcode 升级修改到 armv7s。还有一个 arm64，这个就是让支持64位的设备全部运行64位数据包，由于64位与32位之间的性能差距比较大，再加上现在所有的 App 都需要支持64位，以后的 Xcode 配置中这一项不用改动，就按这个默认的 <code>$(ARCHS_STANDARD)</code> 来就行了。</p>
+
+<p>####Build Active Architecture Only:</p>
+
+<p>这个设置项是一个 BOOL 值，相当于一个开关，其意思是说，如果开关打开的话，我当前选择的设备是什么，我就编译跟设备匹配的二进制包。一般来说 Debug 模式下设置为 YES，这样子在测试 App 的时候，编译器只需要编译一种包，极大的减少了编译时间。Release 模式下设置为 NO，Release 模式主要是指打包为 ipa 分发测试或上线到 AppStore，这个时候你根本不知道安装 App 的设备是什么，当然是选择 NO，让编译起编译你所有想要支持的二进制包啦。</p>
+
+<p>####Valid Architectures:</p>
+
+<p>这里选择的是可能要编译的指令集，<code>Valid Architectures</code> 与 <code>Architectures</code> 指令集的交集，才会是 Xcode 最终编译出来的二进制包支持的指令集。如果此项为空，那么 Xcode 将不会编译任何东西。如果对 App 的体积有要求，可以在此项中设置最小的指令支持，但还是必须支持64位哦～</p>
+
+<p>只要理解了 iOS 设备与指令集的关系，以后如果项目中遇到了指令集编译方面的错误，就可以迎刃而解了，尤其是使用第三方的 .a 静态库时，可能会出各种问题，其中很多问题都是指令集造成的，尤其是那些 <em>年代久远</em> 的库。</p>
+
+<h4 id="查看指定静态库所支持的指令集">查看指定静态库所支持的指令集</h4>
+
+<p>比如要查看 libExample.a 这个静态库所支持的指令集，只需要 lipo 一下就好了</p>
+
+<pre><code>lipo -info libExample.a
+</code></pre>
+
+<p>我自己在电脑上测试某 SDK 的库，得到的结果如下:</p>
+
+<pre><code>Architectures in the fat file: output/Libxxx/libxxx.a are: armv7 armv7s i386 x86_64 arm64 
+</code></pre>
+
+<p>可以见得，在写 SDK 时，最好是 <strong>全部都支持</strong> ，这样子才不会给使用 SDK 的开发者造成麻烦。</p>
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2015/2015-03-02-ios-gong-cheng-zhong-de-architectures/>https://example.com/2015/2015-03-02-ios-gong-cheng-zhong-de-architectures/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+         
+        
+        <a href="https://example.com/2015/2015-03-02-64-bit-transition-guide-for-cocoa-touch-yi-wen-ru-he-rang-ni-de-app-zhi-chi-64wei/" class="next" rel="next" title="64 Bit Transition Guide for Cocoa Touch">64 Bit Transition Guide for Cocoa Touch&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+     <link href="//lib.baomitu.com/lightgallery/1.6.11/css/lightgallery.min.css" rel="stylesheet">  
+      
+     <script src="/js/vendor_gallery.min.js" async="" ></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

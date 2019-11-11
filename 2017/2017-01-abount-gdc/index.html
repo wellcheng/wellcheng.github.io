@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2016/2016-09-ios-project-structure/" />
+  <link rel="next" href="https://example.com/2017/2017-05-Auto-Layout-setNeedsUpdateConstraints-layoutIfNeeded/" />
+  <link rel="canonical" href="https://example.com/2017/2017-01-abount-gdc/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           GCD 的一点疑惑与自解 | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="GCD 的一点疑惑与自解 | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "GCD 的一点疑惑与自解",
+    "headline" : "GCD 的一点疑惑与自解",
+    "description" : "\x3ch1 id=\x22gcd-的一点疑惑与自解\x22\x3eGCD 的一点疑惑与自解\x3c\/h1\x3e\n\n\x3cp\x3eGCD 其实已经了解了很久了，在实际工程中也会经常用，但是其实很多实践都是浅尝辄止。\x3c\/p\x3e\n\n\x3cp\x3e最近又在回头看这块儿的内容，有一些知识点，原来不甚明白的，现在有了新的认识，刚好也记录下。\x3c\/p\x3e\n\n\x3cp\x3eGCD 是一套方案，GCD 本身管理了一组线程池，GCD 负责线程池中的线程创建销毁、并且这种能力是动态化的，即可以充分利用当前 CPU 的多核特性。\n添加到 GCD 队列中的任务，会由 GCD 来决定运行在哪一个线程上。也就是说，GCD Queue 是一个抽象概念， task 是添加到 Queue 中不假，但是实际仍然是运行在线程上的。\x3c\/p\x3e",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2017",
+    "datePublished": "2017-01-19 22:48:22 \x2b0000 UTC",
+    "dateModified" : "2017-01-19 22:48:22 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2017\/2017-01-abount-gdc\/",
+    "wordCount" : "245",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">GCD 的一点疑惑与自解</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2017-01-19 itemprop="datePublished">January 19, 2017</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+            
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          <h1 id="gcd-的一点疑惑与自解">GCD 的一点疑惑与自解</h1>
+
+<p>GCD 其实已经了解了很久了，在实际工程中也会经常用，但是其实很多实践都是浅尝辄止。</p>
+
+<p>最近又在回头看这块儿的内容，有一些知识点，原来不甚明白的，现在有了新的认识，刚好也记录下。</p>
+
+<p>GCD 是一套方案，GCD 本身管理了一组线程池，GCD 负责线程池中的线程创建销毁、并且这种能力是动态化的，即可以充分利用当前 CPU 的多核特性。
+添加到 GCD 队列中的任务，会由 GCD 来决定运行在哪一个线程上。也就是说，GCD Queue 是一个抽象概念， task 是添加到 Queue 中不假，但是实际仍然是运行在线程上的。</p>
+
+<h2 id="gcd-concurrent-queue-并行队列">GCD Concurrent Queue 并行队列</h2>
+
+<blockquote>
+<p>GCD 的队列中的 task 遵循 FIFO （First In First Out）原则，但是 task 完成的顺序是不可测的。</p>
+</blockquote>
+
+<p>上面的这段描述，是在当时阅读官方文档的时候，产生了疑惑，我的想法是，既然 task 是按照先后添加到 Queue 中的顺序进行执行的，那为啥完成时间就不一定了呢？</p>
+
+<p>现在明白了，task 的执行压根和 Queue 关系不大，GCD 只是按照添加顺序从 Queue 中一个个拿出 task，扔到线程上去执行。有的 task 一会就完成了，有的需要比较长的时间，当然这个完成顺序就不一定了。</p>
+
+<p>现在想想，当时应该是想当然的认为 GCD 只有在完成上一个任务后才会开启下一个任务，跟串行队列混淆了，从而导致疑惑的。</p>
+
+<h2 id="gcd-串行队列">GCD 串行队列</h2>
+
+<p>串行队列就是只有完成上一个 task ，才会进行下一个 task 的执行。
+所以完成顺序与添加顺序是相同的。</p>
+
+<h2 id="objc-gcd-队列疑惑">Objc GCD 队列疑惑</h2>
+
+<p><figure><img src="/images/ring.svg" data-sizes="auto" data-src="http://upload-images.jianshu.io/upload_images/690040-1820f77761f9ed12.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="gcd-queues.png" class="lazyload"><figcaption class="image-caption">gcd-queues.png</figcaption></figure></p>
+
+<p>上图是摘录自 Objc.cn 中关于 GCD 队列的一张图。
+但是在阅读时，我有下面几点疑惑：</p>
+
+<ul>
+<li>为什么 Custom Queues 这一层的关系如此复杂。</li>
+<li>为什么 Serial Queue 既指向了 Serial Queue ，又能指向 Concurrent Queue。</li>
+<li>最上面一层中的 Serial Queue 和 倒数第二层中的 Queues 有什么关系。</li>
+</ul>
+
+<blockquote>
+<p>GCD 公开有 5 个不同的队列：运行在主线程中的 main queue，3 个不同优先级的后台队列，以及一个优先级更低的后台队列（用于 I/O）。 另外，开发者可以创建自定义队列：串行或者并行队列。自定义队列非常强大，在自定义队列中被调度的所有 block 最终都将被放入到系统的全局队列中和线程池中。</p>
+</blockquote>
+
+<p>Objc 原文如上描述。</p>
+
+<p>细细品味，其意思是，GCD Queues 有 5 大钦定的 Queue。
+开发者当然也可以自定义 Queue（使用 dispatch_queue_create 函数）, 前面说过，Queue 是一个抽象概念，只是简单的保存 task 而已，最终 task 还是要在 GCD Thread Pool 中完成的。</p>
+
+<h2 id="目标队列-target-queue">目标队列 Target Queue</h2>
+
+<p>之前讲过，task 最终是要从 Queue 中放到线程池中执行的。
+其实还有一种情况，就是 task 可以从一个 Queue 中放到另一个 Queue 中。
+需要设置当前 Queue 的 TargetQueue。
+了解了这个概念，就能很清楚的明白上面的图了。</p>
+
+<p>为了更加清楚的阐述这张图的表达意图，可以从这几条线说起：</p>
+
+<h3 id="s1-main-queue">S1 -&gt; Main Queue</h3>
+
+<p>MainQueue 这个队列中的 task 最终都会放到主线程上执行。如果所示，MainQueue 是指向    Main Thread。
+也就是说，如果自定义队列时，如果这个自定义串行队列的 Target Queue 是 Main Queue，那么这些 task 将都会放在主线程执行。</p>
+
+<h3 id="s3-default-priority-queue">S3 -&gt; Default Priority Queue</h3>
+
+<p>这里的意思很简单，自定义队列的默认 Target Queue 就是 Default Priority Queue，这也就是 Objc 所解释的 <code>在自定义队列中被调度的所有 block 最终都将被放入到系统的全局队列中和线程池中</code> 。
+在 S3 队列中的任务，会一个接着一个地放入到 Global Queue 中，然后被执行。在前一个 task 完成之后，才会继续下一个 task。</p>
+
+<h3 id="c2-default-priority-queue">C2 -&gt;  Default Priority Queue</h3>
+
+<p>同上，不过这里，会一咕噜的将 C2 中的 task 往 Global Queue 中放，不用管上一个 task 是否完成。</p>
+
+<h3 id="s2-s3">S2 -&gt; S3</h3>
+
+<p>Serial Queue 的 target queue 同样是 Serial Queue</p>
+
+<h3 id="c1-s4-c2">C1 + S4 -&gt; C2</h3>
+
+<p>C1 的 Concurrent Queue 的 target queue = Concurrent Queue
+这个就比较高级了。
+在这个模式下，S4 中的 task 串行，C1 中的 task 并行。
+但是最终它们这些任务都放在一个并发队列中。</p>
+
+<h2 id="最后">最后</h2>
+
+<p>以上是个人对于 GCD 的一些见解，如有描述不对，还请及时指正。</p>
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2017/2017-01-abount-gdc/>https://example.com/2017/2017-01-abount-gdc/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2016/2016-09-ios-project-structure/" class="prev" rel="prev" title="iOS 目录结构"><i class="iconfont icon-left"></i>&nbsp;iOS 目录结构</a>
+         
+        
+        <a href="https://example.com/2017/2017-05-Auto-Layout-setNeedsUpdateConstraints-layoutIfNeeded/" class="next" rel="next" title="Auto Layout 中的 setNeedsUpdateConstraints 和 layoutIfNeeded">Auto Layout 中的 setNeedsUpdateConstraints 和 layoutIfNeeded&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+     <link href="//lib.baomitu.com/lightgallery/1.6.11/css/lightgallery.min.css" rel="stylesheet">  
+      
+     <script src="/js/vendor_gallery.min.js" async="" ></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

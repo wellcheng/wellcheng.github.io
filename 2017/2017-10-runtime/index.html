@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2017/2017-09-nsnotificaiton/" />
+  
+  <link rel="canonical" href="https://example.com/2017/2017-10-runtime/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           随便说 iOS 中的 runtime | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="随便说 iOS 中的 runtime | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "随便说 iOS 中的 runtime",
+    "headline" : "随便说 iOS 中的 runtime",
+    "description" : "Objc 作为动态语言，可以将消息转发给想要的对象去处理。但是编译器能做的只有将代码转为汇编指令，然后固定的指令流水执行。因此在 Objecive-C 中，还有一套强大的 runtime 运行时系统，专门提供消息转发等运行时能力，还提供了大量的 API，例如 objc_send， class_get 等。\nOC 中的类与对象 Objective-C 中的类是 Class 类型，看下其定义：\n\/\/ objc.h \/\/\/ An opaque type that represents an Objective-C class. typedef struct objc_class *Class;  注释中也说的很清楚，Class 就是一个指向 objc_class 结构体的指针，那么类自然就是由这个结构体来描述来，跟进继续查看：\n\/\/ objc\/runtime.h struct objc_class { \/** *\t类是一个抽象概念，描述类的数据结构时使用的是具体的实体， *\t因此可说所有的类本身也是一个对象，对象又一定是某个类的实例， *\t所以这里有个 isa 指针，指向了所属的类。 *\t这里比较特殊，是 Class 的 isa 指向了 Class，所以称为 metaClass，元类 *\/ Class _Nonnull isa OBJC_ISA_AVAILABILITY; #if !__OBJC2__ Class _Nullable super_class \/\/ 指向父类 const char * _Nonnull name \/\/ class name long version long info long instance_size \/\/ 类初始化后实例的大小 struct objc_ivar_list * _Nullable ivars \/\/ 实例变量的列表 struct objc_method_list * _Nullable * _Nullable methodLists \/\/ 类方法列表 struct objc_cache * _Nonnull cache \/\/ 缓存最近使用过的方法 struct objc_protocol_list * _Nullable protocols \/\/ 实现的协议列表 #endif } OBJC2_UNAVAILABLE; \/* Use `Class` instead of `struct objc_class *` *\/  当 class 收到一条消息时，需要判断是否能够处理，查找时优先从cache 中找，找不到后从 method_list 中查找，找到后会添加到 cache 中。这也是一个 性能上的优化。",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2017",
+    "datePublished": "2017-11-19 18:24:28 \x2b0800 CST",
+    "dateModified" : "2017-11-19 18:24:28 \x2b0800 CST",
+    "url" : "https:\/\/example.com\/2017\/2017-10-runtime\/",
+    "wordCount" : "644",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">随便说 iOS 中的 runtime</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2017-11-19 itemprop="datePublished">November 19, 2017</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+            
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          
+
+<p>Objc 作为动态语言，可以将消息转发给想要的对象去处理。但是编译器能做的只有将代码转为汇编指令，然后固定的指令流水执行。因此在 Objecive-C 中，还有一套强大的 runtime 运行时系统，专门提供消息转发等运行时能力，还提供了大量的 API，例如 objc_send， class_get 等。</p>
+
+<!-- more -->
+
+<h2 id="oc-中的类与对象">OC 中的类与对象</h2>
+
+<p>Objective-C 中的类是 Class 类型，看下其定义：</p>
+
+<pre><code class="language-objc">// objc.h
+
+/// An opaque type that represents an Objective-C class.
+typedef struct objc_class *Class;
+
+</code></pre>
+
+<p>注释中也说的很清楚，Class 就是一个指向 objc_class 结构体的指针，那么类自然就是由这个结构体来描述来，跟进继续查看：</p>
+
+<pre><code class="language-objc">// objc/runtime.h
+
+struct objc_class {
+  	/**
+  	*	类是一个抽象概念，描述类的数据结构时使用的是具体的实体，
+  	*	因此可说所有的类本身也是一个对象，对象又一定是某个类的实例，
+  	*	所以这里有个 isa 指针，指向了所属的类。
+  	*	这里比较特殊，是 Class 的 isa 指向了 Class，所以称为 metaClass，元类
+  	*/
+    Class _Nonnull isa  OBJC_ISA_AVAILABILITY;
+
+#if !__OBJC2__
+    Class _Nullable super_class  	// 指向父类     
+    const char * _Nonnull name  	// class name
+    long version
+    long info
+    long instance_size  	// 类初始化后实例的大小
+    struct objc_ivar_list * _Nullable ivars  	// 实例变量的列表
+    struct objc_method_list * _Nullable * _Nullable methodLists  	// 类方法列表
+    struct objc_cache * _Nonnull cache  	// 缓存最近使用过的方法
+    struct objc_protocol_list * _Nullable protocols // 实现的协议列表
+#endif
+
+} OBJC2_UNAVAILABLE;
+/* Use `Class` instead of `struct objc_class *` */
+
+</code></pre>
+
+<p>当 class 收到一条消息时，需要判断是否能够处理，查找时优先从cache 中找，找不到后从 method_list 中查找，找到后会添加到 cache 中。这也是一个 性能上的优化。</p>
+
+<p>看完了类，看下对象：</p>
+
+<pre><code class="language-objc">/// Represents an instance of a class.
+struct objc_object {
+    Class _Nonnull isa  OBJC_ISA_AVAILABILITY;
+};
+
+/// A pointer to an instance of a class.
+typedef struct objc_object *id;
+</code></pre>
+
+<p>对象也是用一个结构体来描述，内部比较简单，就是一个 isa 指针指向自己的类，因为 class 中保存了所有有关的信息，且这些信息都是对象共享的。</p>
+
+<p>代码的第二部分，解释了 id 是从何而来，id 就是指向这个结构体的指针，所有 OC 中所有的对象都可以用 id 来保存。</p>
+
+<h2 id="metaclass-元类">MetaClass 元类</h2>
+
+<p>创建对象可以使用类，但是如果我们想创建出类呢？那就必须根据metaclass创建出类，所以：先定义metaclass，然后创建类。</p>
+
+<p>对象是可以接收方法调用的，为什么类也可以使用类方法呢？因为类本身也是一个对象，这个对象由 metaClass 实例化。它接收方法调用，既然类是对象（之后称作类对象），那么就必然由一个 isa 指针指向该类对象的 Class。这个 Class 就是元类 metaClass。</p>
+
+<p><figure><img src="/images/ring.svg" data-sizes="auto" data-src="/images/128529-b2aeea6630b9514a.jpg" alt="128529-b2aeea6630b9514a" class="lazyload"><figcaption class="image-caption">128529-b2aeea6630b9514a</figcaption></figure></p>
+
+<p>对于实例方法，如上图紫色的顺序查找方法。</p>
+
+<p>对于类方法，按照绿色顺序查找方法。对于 Object，该类的 metaClass 是自己，形成闭环。</p>
+
+<h2 id="通过-yymodel-看-runtime-api">通过 YYModel 看 Runtime API</h2>
+
+<p>既然理解了 Class 是一个结构体指针，metaClass 描述 Class，那么就可以比较顺手地去使用 runtime 提供的强大 API 了。下面拿 YYModel 中的一些代码举例</p>
+
+<pre><code class="language-objc">/// Get the 'NSBlock' class.
+static force_inline Class YYNSBlockClass() {
+    static Class cls;
+    static dispatch_once_t onceToken;
+    dispatch_once(&amp;onceToken, ^{
+        void (^block)(void) = ^{};
+        cls = ((NSObject *)block).class;
+        while (class_getSuperclass(cls) != [NSObject class]) {
+            cls = class_getSuperclass(cls);
+        }
+    });
+    return cls; // current is &quot;NSBlock&quot;
+}
+
+</code></pre>
+
+<p><code>class_getSuperclass</code> ： 获取 cls 的 superClas。</p>
+
+<p>例如，使用 YYModel 通过 Dictionary 生成 CVLModel 的对象：</p>
+
+<pre><code class="language-objc">// CVLModel 假设是我们自己的类，dict 是 server 返回的包
+CVLModel *model = [CVLModel yy_modelWithDictionary:dict];
+</code></pre>
+
+<p>1 获取 CVLModel 的 Class 信息：</p>
+
+<pre><code class="language-objc">Class cls = [CVLModel class];
+</code></pre>
+
+<p>2 将 cls 中的信息，read 到自定义类 YYModelMeta 中，</p>
+
+<pre><code class="language-objc">
+_YYModelMeta *modelMeta = [_YYModelMeta metaWithClass:cls];
+
+// metaWithClass 的具体实现中，涉及了大量的缓存操作提升性能，会将之前创建过的 metaClass 缓存起来，所以我们只关注下核心的一行代码
+
+meta = [[_YYModelMeta alloc] initWithClass:cls];
+
+</code></pre>
+
+<p>最终会走到 YYClassInfo 的初始化方法中，在这里通过 runtime 的 API 获取 cls 的数据。</p>
+
+<pre><code class="language-objc">
+- (instancetype)initWithClass:(Class)cls {
+    if (!cls) return nil;
+    self = [super init];
+  // 保存 cls 作为实例
+    _cls = cls;
+  // 获取父类的 cls
+    _superCls = class_getSuperclass(cls);
+  // 判断 cls 是否为 metaClass
+    _isMeta = class_isMetaClass(cls);
+    if (!_isMeta) {
+      // 非 metaClass，获取当前类的 metaClass
+        _metaCls = objc_getMetaClass(class_getName(cls));
+    }
+  // cls 的类名
+    _name = NSStringFromClass(cls);
+  // 
+    [self _update];
+	// 递归调用获取父类的 classInfo
+    _superClassInfo = [self.class classInfoWithClass:_superCls];
+    return self;
+}
+
+- (void)_update {
+    _ivarInfos = nil;
+    _methodInfos = nil;
+    _propertyInfos = nil;
+    
+    Class cls = self.cls;
+	// 开始获取方法列表
+    unsigned int methodCount = 0;
+    Method *methods = class_copyMethodList(cls, &amp;methodCount);
+    if (methods) {
+        NSMutableDictionary *methodInfos = [NSMutableDictionary new];
+        _methodInfos = methodInfos;
+        for (unsigned int i = 0; i &lt; methodCount; i++) {
+          	// 将 method 也用 YYClassMethodInfo 保存起来
+            YYClassMethodInfo *info = [[YYClassMethodInfo alloc] initWithMethod:methods[i]];
+            if (info.name) methodInfos[info.name] = info;
+        }
+        free(methods);
+    }
+  	// copy 属性列表
+    unsigned int propertyCount = 0;
+    objc_property_t *properties = class_copyPropertyList(cls, &amp;propertyCount);
+    if (properties) {
+        NSMutableDictionary *propertyInfos = [NSMutableDictionary new];
+        _propertyInfos = propertyInfos;
+        for (unsigned int i = 0; i &lt; propertyCount; i++) {
+            YYClassPropertyInfo *info = [[YYClassPropertyInfo alloc] initWithProperty:properties[i]];
+            if (info.name) propertyInfos[info.name] = info;
+        }
+        free(properties);
+    }
+    
+	// copy 实例变量列表
+    unsigned int ivarCount = 0;
+    Ivar *ivars = class_copyIvarList(cls, &amp;ivarCount);
+    if (ivars) {
+        NSMutableDictionary *ivarInfos = [NSMutableDictionary new];
+        _ivarInfos = ivarInfos;
+        for (unsigned int i = 0; i &lt; ivarCount; i++) {
+            YYClassIvarInfo *info = [[YYClassIvarInfo alloc] initWithIvar:ivars[i]];
+            if (info.name) ivarInfos[info.name] = info;
+        }
+        free(ivars);
+    }
+    
+    if (!_ivarInfos) _ivarInfos = @{};
+    if (!_methodInfos) _methodInfos = @{};
+    if (!_propertyInfos) _propertyInfos = @{};
+    
+    _needUpdate = NO;
+}
+</code></pre>
+
+<p>可以看出来，YYModel 使用  runtime API，将 CVLModel 拔了个精光。</p>
+
+<h2 id="runtime-api">Runtime API</h2>
+
+<p><strong>object_getClass(id _Nullable obj)</strong></p>
+
+<p>通过 obj 获取对应的 Class。这里传入对象，得到对象的类信息。传入类，也就是把类作为对象传入，那么返回的是该类的 metaClass。</p>
+
+<p><strong>objc_getClass(const char * _Nonnull name)</strong></p>
+
+<p>同样是获取 class 信息，这里传入的是该类的 name，当然这个 name 也可以通过 object_getClassName 传入一个对象获得。</p>
+
+<p><strong>objc_getMetaClass(const char * _Nonnull name)</strong></p>
+
+<p>获取 metaClass 信息，我认为等同于</p>
+
+<pre><code class="language-Objc">// 先获取普通 cls
+Class cls = objc_getClass(clsName);
+// 再获取 metaClass
+Class metaCls = object_getClass(cls);
+</code></pre>
+
+<h2 id="小结">小结</h2>
+
+<p>通过 Objective-C 中类与对象的分析，再拓展到 runtime ，我们揭开这层神秘面纱，初探 runtime，可以看到 runtime 系统的厉害之处，再由 YYModel 的实现分析，学习如何动态创建对象并赋值。</p>
+
+<p>之后在项目中有需求要实现时，了解 runtime 后，也许会帮我们打开新的思路。runtime 不可怕但也要保持谨慎敬畏，我们无法完全理解并使用，谁也不知道里面是否存在坑（比如就一个方法替换，坑就很多，网上也不乏关于这些坑的介绍以及如何避免）。</p>
+
+<h2 id="参考">参考</h2>
+
+<ol>
+<li>[^类与对象]: <a href="http://southpeak.github.io/2014/10/25/objective-c-runtime-1/" rel="nofollow noreferrer" target="_blank">http://southpeak.github.io/2014/10/25/objective-c-runtime-1/</a></li>
+<li>[^YYModel]: <a href="https://github.com/ibireme/YYModel" rel="nofollow noreferrer" target="_blank">https://github.com/ibireme/YYModel</a></li>
+<li>[^Runtime 中关于MetaClass的问题]: <a href="http://www.jianshu.com/p/d0c6a3efb4d4" rel="nofollow noreferrer" target="_blank">http://www.jianshu.com/p/d0c6a3efb4d4</a></li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2017/2017-10-runtime/>https://example.com/2017/2017-10-runtime/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2017/2017-09-nsnotificaiton/" class="prev" rel="prev" title="使用 iOS 中不一样的 NSNotification Center"><i class="iconfont icon-left"></i>&nbsp;使用 iOS 中不一样的 NSNotification Center</a>
+         
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+     <link href="//lib.baomitu.com/lightgallery/1.6.11/css/lightgallery.min.css" rel="stylesheet">  
+      
+     <script src="/js/vendor_gallery.min.js" async="" ></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

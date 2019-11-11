@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2017/2017-07-ThreadProgrammingGuide-1/" />
+  <link rel="next" href="https://example.com/2017/2017-09-nsnotificaiton/" />
+  <link rel="canonical" href="https://example.com/2017/2017-08-LLDB/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           使用 LLDB 调试 iOS | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="使用 LLDB 调试 iOS | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "使用 LLDB 调试 iOS",
+    "headline" : "使用 LLDB 调试 iOS",
+    "description" : "一些基础知识 增加断点 使用 b 后面加上 selector，就可以增加一个断点，lldb 会打印断点的编号、描述以及断点的内存地址。\n(lldb) b -[NSView hitTest:] Breakpoint 1: where = AppKit`-[NSView hitTest:], address = 0x00007fff4f088798 (lldb)continue  因为使用 lldb 的 b 命令会让 App 暂停，因此使用 continue 命令让 App 继续运行，然后我们通过一些动作来主动触发这个断点。\n触发断点 当增加了断点后，比如上面这个 hitTest 方法，我们知道是 view 被点击后，就会被调用。因此可以点击后尝试一下：\n(lldb) continue # 进程已经恢复 Process 1230 resuming # 触发断点后，进程暂停 Process 1230 stopped # 打印出线程信息，暂停原因，以及部分汇编代码 * thread #1, queue = \x27com.apple.main-thread\x27, stop reason = breakpoint 1.1 frame #0: 0x00007fff4f088798 AppKit`-[NSView hitTest:] AppKit`-[NSView hitTest:]: （# 栈帧） -\x26gt; 0x7fff4f088798 \x26lt;\x2b0\x26gt;: pushq %rbp 0x7fff4f088799 \x26lt;\x2b1\x26gt;: movq %rsp, %rbp 0x7fff4f08879c \x26lt;\x2b4\x26gt;: pushq %r15 0x7fff4f08879e \x26lt;\x2b6\x26gt;: pushq %r14 Target 0: (Xcode) stopped.",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2017",
+    "datePublished": "2017-08-18 21:10:26 \x2b0800 CST",
+    "dateModified" : "2017-08-18 21:10:26 \x2b0800 CST",
+    "url" : "https:\/\/example.com\/2017\/2017-08-LLDB\/",
+    "wordCount" : "592",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">使用 LLDB 调试 iOS</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2017-08-18 itemprop="datePublished">August 18, 2017</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+            
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          
+
+<h1 id="一些基础知识">一些基础知识</h1>
+
+<h2 id="增加断点">增加断点</h2>
+
+<p>使用 b 后面加上 selector，就可以增加一个断点，lldb 会打印断点的编号、描述以及断点的内存地址。</p>
+
+<pre><code class="language-shell">(lldb) b -[NSView hitTest:]
+Breakpoint 1: where = AppKit`-[NSView hitTest:], address = 0x00007fff4f088798
+(lldb)continue
+</code></pre>
+
+<p>因为使用 lldb 的 b 命令会让 App 暂停，因此使用 continue 命令让 App 继续运行，然后我们通过一些动作来主动触发这个断点。</p>
+
+<!-- more -->
+
+<h2 id="触发断点">触发断点</h2>
+
+<p>当增加了断点后，比如上面这个 hitTest 方法，我们知道是 view 被点击后，就会被调用。因此可以点击后尝试一下：</p>
+
+<pre><code class="language-shell">(lldb) continue
+# 进程已经恢复
+Process 1230 resuming
+
+# 触发断点后，进程暂停
+Process 1230 stopped
+
+# 打印出线程信息，暂停原因，以及部分汇编代码
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+
+    frame #0: 0x00007fff4f088798 AppKit`-[NSView hitTest:]
+AppKit`-[NSView hitTest:]: （# 栈帧）
+-&gt;  0x7fff4f088798 &lt;+0&gt;: pushq  %rbp
+    0x7fff4f088799 &lt;+1&gt;: movq   %rsp, %rbp
+    0x7fff4f08879c &lt;+4&gt;: pushq  %r15
+    0x7fff4f08879e &lt;+6&gt;: pushq  %r14
+Target 0: (Xcode) stopped.
+</code></pre>
+
+<blockquote>
+<p>在 X86-64 架构中，所有的寄存器都是 64 位，并且有 16 个寄存器。</p>
+
+<p>| 寄存器标识                       | 寄存器用途                     | 个数   |
+  | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; | &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;- | &mdash;- |
+  | %rax                        | 函数返回值                     | 1    |
+  | %rsp                        | 栈指针寄存器，指向栈顶               | 1    |
+  | %rdi、%rsi、%rdx、%rcx         | 第 1、2、3、4 个参数             | 3    |
+  | %r8、%r9                     | 第 5、6 个参数（超过 6个参数使用栈传递参数） | 2    |
+  | %rbx、%rbp、%r12、%r13、%14、%15 | 存储参数                      | 6    |
+  | %r10、%r11                   | 也是存储参数，但是用之前保存原值，用完恢复     | 2    |</p>
+
+<p>关于寄存器的命名，前面的 abcd 都是 extended 。与 32 bit 架构下的没有区别。</p>
+
+<ul>
+<li>rbp - register base pointer (start of stack)</li>
+<li>rsp - register stack pointer (current location in stack, growing downwards)</li>
+<li>rsi - register source index (source for data copies)</li>
+<li>rdi - register destination index (destination for data copies)</li>
+</ul>
+
+<p>64 bit 额外增加了 r8 - r15 8 个寄存器</p>
+</blockquote>
+
+<h3 id="栈帧-32bit">栈帧（32Bit）</h3>
+
+<p>计算机应用程序的运行，可以理解为一个个的函数调用。App 调用 main 函数开始，然后在 main 函数中执行代码并调用其他函数。</p>
+
+<p>调用函数，那么就需要进行参数传递、局部变量分配，上下文环境的保存和恢复。而这些操作，都是通过进栈和出栈来完成的。</p>
+
+<p>每次调用函数时，给函数实例分配的内存空间就是栈帧。另外，在内存中，栈是从高地址️向低地址延伸。</p>
+
+<p>下图，为 DrawSquare 函数调用 DrawLine 函数的调用栈布局（call stack layout），在这里注意下几个特殊的寄存器：</p>
+
+<ul>
+<li>bp ：base pointer</li>
+<li>sp ：stack pointer</li>
+<li>ip ： instruction pionter</li>
+</ul>
+
+<p>在 DrawSquare 函数中，调用 drawLine 函数时会创建栈帧，按照下面的顺序：</p>
+
+<ol>
+<li>将传入的参数压栈，比如 line 的 length、color、width，压栈顺序与参数传入顺序相反，对应下图 param #n ～#1。</li>
+<li>返回地址入栈，即 <code>old EIP</code> 。假设 DrawLine 函数执行完成之后返回 BOOL 类型表示是否成功。这个地址在函数执行完成后会用到。</li>
+<li>接着跳转到 drawLine 函数的起始地址， <code>old EBP</code> 入栈，即调用函数 drawSquare 的 base pointer。并将这个内存块的值刷新重写为当前的地址，作为 drawLine 函数的 EBP，就是说这个内存地址是 DrawLine  函数的栈帧开始。之后栈帧中都会使用这个 EBP 作为基地址专门寻址。</li>
+<li>逐步执行函数内部的语句，不断的将 local 变量入栈、出栈。或者是再次调用其他函数。</li>
+<li>函数执行完成，将保存寄存器里的值压栈。</li>
+</ol>
+
+<p><figure><img src="/images/ring.svg" data-sizes="auto" data-src="/images/2C1D6070-CF81-42BB-9EF6-7D9D107A3497.png" alt="2C1D6070-CF81-42BB-9EF6-7D9D107A3497" class="lazyload"><figcaption class="image-caption">2C1D6070-CF81-42BB-9EF6-7D9D107A3497</figcaption></figure></p>
+
+<h3 id="drawline-函数中的寻址">DrawLine 函数中的寻址</h3>
+
+<p>DrawLine 函数的栈帧中，所有栈内存的寻址方式为相对寻址，也就是与 EBP 的偏移量。在上图右边指出来了，例如 Local Var #1 这个局部变量，内存地址为 <code>-4</code> ，因为相对于 EBP（当前栈帧），它的位置小于 EBP 32bit，也就是 4 字节。</p>
+
+<blockquote>
+<p>- 4 表示小于，因为栈的创建是从高地址到低地址。</p>
+</blockquote>
+
+<p>而 DrawSquare 函数栈帧最后面传递下来的参数，我们也是用相对寻址，不过就是大于号了。这样子也能很方便的获取当前函数的参数。</p>
+
+<h3 id="栈帧的销毁">栈帧的销毁</h3>
+
+<p>当 drawLine 函数完成后，那么就需要将结果返回，并销毁当前栈帧。</p>
+
+<ol>
+<li>将之前使用的通用寄存器等的值恢复。</li>
+<li>将 Frame Point 恢复其旧值，因为也用不到了</li>
+<li>返回调用函数 drawSquare，有返回值的话那么也一起带走，多半情况下，drawSquare 也会将返回值入栈，继续执行自己的代码。</li>
+</ol>
+
+<p>当 drawLine 的栈帧销毁后，对于drawSquare 来说，好像什么都没发生一样，只得到了一个结果。栈这个数据结构就是如此美妙。</p>
+
+<blockquote>
+<p>在 32bit 的 CPU 架构中，前缀都是 e，也就是 EBP，EIP等，在 64 bit CPU 架构（Risc 架构）中，前缀都是 r。所以对于文章中一会儿 e 一会儿 r 不要特别纠结。</p>
+</blockquote>
+
+<h3 id="分析下之前的汇编代码">分析下之前的汇编代码</h3>
+
+<p>阅读了上面关于寄存器的介绍，再次重新看看那部分汇编代码：</p>
+
+<pre><code class="language-shell"># 栈帧在这里开始，也就是说，hitTest 函数被调用了，EBP 也就是基地址是 0x00007fff4f088798
+frame #0: 0x00007fff4f088798 AppKit`-[NSView hitTest:]
+AppKit`-[NSView hitTest:]: （# 栈帧）
+
+# 旧的 RBP 基地址入栈, 保存caller的%rbp寄存器值，这个%rbp在函数返回给caller的时候需要恢复原来值，通过leave指令完成。
+-&gt;  0x7fff4f088798 &lt;+0&gt;: pushq  %rbp
+
+# 当前的 %rsp 覆盖旧的地址，作为 callee 基地址入栈
+    0x7fff4f088799 &lt;+1&gt;: movq   %rsp, %rbp
+    
+# 参数入栈
+    0x7fff4f08879c &lt;+4&gt;: pushq  %r15
+    0x7fff4f08879e &lt;+6&gt;: pushq  %r14
+</code></pre>
+
+<h3 id="打印寄存器中的值试试看">打印寄存器中的值试试看</h3>
+
+<p>现在 lldb 停在了断点这个位置，且知道 %rdi、%rsi、%rdx、%rcx、r8、r9 分别是参数。那么我们可以打印寄存器中的值看一下都是啥：</p>
+
+<pre><code class="language-Shell">(lldb) po $rdi
+# 这里打印的地方与触发断点的 view 有关系
+&lt;_NSThemeCloseWidget: 0x10fee4ee0&gt;
+
+(lldb) po $rsi
+140734531706171
+
+(lldb) po $rdx
+NSButton
+
+(lldb) po $rcx
+21474836486
+
+(lldb) po $r8
+16
+
+(lldb) po $r9
+3202
+</code></pre>
+
+<h4 id="po-print-object">PO （Print Object）</h4>
+
+<p>顺便介绍下 po 指令，lldb 中 po （print object）用来打印对象，会自动调用对象的 description 或者 debugDespriction，这也是为什么 po $rdi 能打印出对象名的原因。</p>
+
+<p>当前如果没有实现这两个方法，那么就是打印内存中的值了。</p>
+
+<h4 id="continue">continue</h4>
+
+<p>使用该指令跳过此次断点，如果之后的调用没有触发断点，那么 App 继续运行，否则跳到下一个断点。</p>
+
+<p>在下一个断点仍然可以通过打印寄存器中的值来查看。</p>
+
+<h3 id="只关注部分断点">只关注部分断点</h3>
+
+<p>Debug 时，我们不会关注所有的 hitTest 方法，因为几乎所有的 UIView 和其子类都会调用该方法，假如我们只想查看自己 view 的调用，那么可以给断点增加一个条件，只有在满足条件的时候调用。</p>
+
+<pre><code class="language-shell"># 给断点添加条件的语法
+
+# 修改断点序号 1 ，并且设置一个条件
+breakpoint modify 1 -c 'condition'
+</code></pre>
+
+<p>在上面的汇编代码分析中，我们其实看出来了 $rdi 打印的是 self 的值。</p>
+
+<pre><code class="language-shell">breakpoint modify 1 -c '(BOOL)[$rdi isKindOfClass:(id)NSClassFromString(@&quot;UICustomView&quot;)]'
+</code></pre>
+
+<p>这样子，我们就能够让只有 UICustomView 的 HitTest 被调用时，才触发断点。</p>
+
+<h3 id="做一些坏事">做一些坏事</h3>
+
+<p>有时候，使用 po 命令会打印对象的 description，但是我们又想知道对象的内存地址，使用 print formatting 即可。</p>
+
+<h4 id="print-formatting">print formatting</h4>
+
+<pre><code class="language-shell">(lldb) po $rdi
+SourceCodeEditorView: Frame: (0.0, 0.0, 625.0, 990.0), Bounds: (0.0, 0.0, 625.0, 990.0) contentViewOffset: 0.0
+
+(lldb) p/x $rdi
+(unsigned long) $22 = 0x000000010ab58a00
+</code></pre>
+
+<p><code>0x000000010ab58a00</code> 就是 %rdi 寄存器中存储的值了。</p>
+
+<pre><code class="language-shell">(lldb) po 0x000000010ab58a00
+SourceCodeEditorView: Frame: (0.0, 0.0, 625.0, 990.0), Bounds: (0.0, 0.0, 625.0, 990.0) contentViewOffset: 0.0
+</code></pre>
+
+<p>如上，直接 po 地址与 po %rdi 一样。</p>
+
+<h4 id="在-lldb-中调用方法">在 lldb 中调用方法</h4>
+
+<p>在 lldb 中可以直接调用对象的方法</p>
+
+<pre><code class="language-shell"># 调用 self 的 setHidden 方法，并且刷新 UI
+(lldb) po [$rdi setHidden:!(BOOL)[$rdi isHidden]]; [CATransaction flush]
+</code></pre>
+
+<p>这时候界面刷新，view 确实被隐藏了。</p>
+
+<h3 id="lldb-中的局部变量">lldb 中的局部变量</h3>
+
+<p>之前在打印 $rdi 时，得到如下值：</p>
+
+<pre><code class="language-shell">(lldb) p/x $rdi
+(unsigned long) $22 = 0x000000010ab58a00
+</code></pre>
+
+<p>$22 是什么鬼呢？看到后面的等号其实就明白了，使用 $22 等同于使用  <code>0x000000010ab58a00</code> 。</p>
+
+<h2 id="参考">参考</h2>
+
+<ol>
+<li><p>[^64位 CPU 寄存器]: <a href="https://wiki.cdot.senecacollege.ca/wiki/X86_64_Register_and_Instruction_Quick_Start" rel="nofollow noreferrer" target="_blank">https://wiki.cdot.senecacollege.ca/wiki/X86_64_Register_and_Instruction_Quick_Start</a></p></li>
+
+<li><p>[^X86-64寄存器的栈帧]: <a href="http://ju.outofmemory.cn/entry/769" rel="nofollow noreferrer" target="_blank">http://ju.outofmemory.cn/entry/769</a></p></li>
+
+<li><p>[^栈帧]: <a href="http://eleveneat.com/2015/07/11/Stack-Frame/" rel="nofollow noreferrer" target="_blank">http://eleveneat.com/2015/07/11/Stack-Frame/</a></p></li>
+
+<li><p>[^X64 函数调用分析]: <a href="http://www.jianshu.com/p/5a4f2d78cb53" rel="nofollow noreferrer" target="_blank">http://www.jianshu.com/p/5a4f2d78cb53</a></p>
+
+<p>​</p></li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2017/2017-08-LLDB/>https://example.com/2017/2017-08-LLDB/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2017/2017-07-ThreadProgrammingGuide-1/" class="prev" rel="prev" title="iOS 中的多线程"><i class="iconfont icon-left"></i>&nbsp;iOS 中的多线程</a>
+         
+        
+        <a href="https://example.com/2017/2017-09-nsnotificaiton/" class="next" rel="next" title="使用 iOS 中不一样的 NSNotification Center">使用 iOS 中不一样的 NSNotification Center&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+     <link href="//lib.baomitu.com/lightgallery/1.6.11/css/lightgallery.min.css" rel="stylesheet">  
+      
+     <script src="/js/vendor_gallery.min.js" async="" ></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

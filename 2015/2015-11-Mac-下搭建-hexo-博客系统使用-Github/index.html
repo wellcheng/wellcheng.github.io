@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2015/2015-11-ScrollView-%E4%B8%AD%E4%BD%BF%E7%94%A8-autoLayout-%E7%9A%84%E5%9D%91%E4%B8%8E%E5%A1%AB%E5%9D%91/" />
+  <link rel="next" href="https://example.com/2016/2015-year-end-summary/" />
+  <link rel="canonical" href="https://example.com/2015/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           Mac  下搭建 hexo 博客系统，使用 Github | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="Mac  下搭建 hexo 博客系统，使用 Github | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "Mac  下搭建 hexo 博客系统，使用 Github",
+    "headline" : "Mac  下搭建 hexo 博客系统，使用 Github",
+    "description" : "之前用 Octopress 搭建了 blog，这次迁移到 hexo 上，随便写点东西记录一下。\nGithub Pages 这个其实是第一步啦，Mac 是自带 Git 的，不过版本可能不高，有必要可以升级下。\n关于配置 Github SSH 以及 Github Pages 的创建因为之前已经做过了，就不再做介绍了，网上文章很多，随手一搜就好。\nHomebrew 这可是个神器，Mac 下安装各种应用特别舒服。我们主要用它来安装 node.js。\n如果你的 homebrew 是之前很久安装的，可能需要升级一下，因为 OS X EL Capitan 弄了很多权限之类的东西。\n\/\/ 升级 homebrew brew update  Node.js HomeBrew 安装好了之后，直接安装 node\n\/\/ 安装 node brew install node  如果安装的过程中，出现了错误。应该就是 OS X EL Capitan 的问题，SIP 机制不允许对 \/usr 目录做修改。尝试使用一下命令解决：\nsudo chown -R $(whoami):admin \/usr\/local  如果还是没有解决，去 homebrew 的文档页面中详细查询：homebrew OS X 10.11",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2015",
+    "datePublished": "2015-11-13 14:41:47 \x2b0000 UTC",
+    "dateModified" : "2015-11-13 14:41:47 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2015\/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github\/",
+    "wordCount" : "125",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Mac  下搭建 hexo 博客系统，使用 Github</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2015-11-13 itemprop="datePublished">November 13, 2015</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          
+
+<p>之前用 Octopress 搭建了 blog，这次迁移到 hexo 上，随便写点东西记录一下。</p>
+
+<!-- more -->
+
+<h2 id="github-pages">Github Pages</h2>
+
+<p>这个其实是第一步啦，Mac 是自带 Git 的，不过版本可能不高，有必要可以升级下。</p>
+
+<p>关于配置 Github SSH 以及 Github Pages 的创建因为之前已经做过了，就不再做介绍了，网上文章很多，随手一搜就好。</p>
+
+<h2 id="homebrew">Homebrew</h2>
+
+<p>这可是个神器，Mac 下安装各种应用特别舒服。我们主要用它来安装 node.js。</p>
+
+<p>如果你的 homebrew 是之前很久安装的，可能需要升级一下，因为 OS X EL Capitan 弄了很多权限之类的东西。</p>
+
+<pre><code class="language-shell">// 升级 homebrew
+brew update
+</code></pre>
+
+<h2 id="node-js">Node.js</h2>
+
+<p>HomeBrew 安装好了之后，直接安装 node</p>
+
+<pre><code class="language-shell">// 安装 node
+brew install node
+</code></pre>
+
+<p>如果安装的过程中，出现了错误。应该就是 OS X EL Capitan 的问题，SIP 机制不允许对 /usr 目录做修改。尝试使用一下命令解决：</p>
+
+<pre><code class="language-shell">sudo chown -R $(whoami):admin /usr/local
+</code></pre>
+
+<p>如果还是没有解决，去 homebrew 的文档页面中详细查询：<a href="https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/El_Capitan_and_Homebrew.md" rel="nofollow noreferrer" target="_blank">homebrew OS X 10.11</a></p>
+
+<h2 id="hexo">Hexo</h2>
+
+<p>使用 npm 安装</p>
+
+<pre><code class="language-shell">npm install -g hexo
+</code></pre>
+
+<h3 id="初始化-hexo">初始化 hexo</h3>
+
+<p>新建一个目录作为 hexo 博客的存放地点，我选择了建立在用户主目录下：</p>
+
+<pre><code class="language-shell">cd ~
+mkdir hexo
+cd hexo
+hexo init
+npm install
+
+</code></pre>
+
+<h3 id="使用-hexo">使用 hexo</h3>
+
+<p>现在 hexo 已经安装好了，不过还需要进行一些配置，可以参考 <a href="http://www.jianshu.com/p/858ecf233db9" rel="nofollow noreferrer" target="_blank">hexo 配置教程</a></p>
+
+<h3 id="更改主题">更改主题</h3>
+
+<p>我现在使用的是 NexT 主题，详细可参考 <a href="http://theme-next.iissnan.com/five-minutes-setup.html" rel="nofollow noreferrer" target="_blank">Next 主题 wiki</a></p>
+
+<h3 id="hexo-命令">Hexo 命令</h3>
+
+<pre><code class="language-shell">// 新建文档
+hexo new &quot;这是一篇新文章&quot;
+
+// 生成静态页面
+hexo g
+
+// 预览, 可打开浏览器进行预览
+hexo s
+
+// 发布到 github ，需在站点配置文件中配置正确
+hexo d
+</code></pre>
+
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2015/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github/>https://example.com/2015/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2015/2015-11-ScrollView-%E4%B8%AD%E4%BD%BF%E7%94%A8-autoLayout-%E7%9A%84%E5%9D%91%E4%B8%8E%E5%A1%AB%E5%9D%91/" class="prev" rel="prev" title="ScrollView 中使用 autoLayout 的坑与填坑"><i class="iconfont icon-left"></i>&nbsp;ScrollView 中使用 autoLayout 的坑与填坑</a>
+         
+        
+        <a href="https://example.com/2016/2015-year-end-summary/" class="next" rel="next" title="2015 年终总结">2015 年终总结&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    <script src="/js/vendor_no_gallery.min.js" async=""></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

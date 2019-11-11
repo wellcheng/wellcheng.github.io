@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Charvel&#39;s home</title>
+    <link>https://example.com/posts/</link>
+    <description>Recent content in Posts on Charvel&#39;s home</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 19 Nov 2017 18:24:28 +0800</lastBuildDate>
+    
+	<atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>随便说 iOS 中的 runtime</title>
+      <link>https://example.com/2017/2017-10-runtime/</link>
+      <pubDate>Sun, 19 Nov 2017 18:24:28 +0800</pubDate>
+      
+      <guid>https://example.com/2017/2017-10-runtime/</guid>
+      <description>Objc 作为动态语言，可以将消息转发给想要的对象去处理。但是编译器能做的只有将代码转为汇编指令，然后固定的指令流水执行。因此在 Objecive-C 中，还有一套强大的 runtime 运行时系统，专门提供消息转发等运行时能力，还提供了大量的 API，例如 objc_send， class_get 等。
+OC 中的类与对象 Objective-C 中的类是 Class 类型，看下其定义：
+// objc.h /// An opaque type that represents an Objective-C class. typedef struct objc_class *Class;  注释中也说的很清楚，Class 就是一个指向 objc_class 结构体的指针，那么类自然就是由这个结构体来描述来，跟进继续查看：
+// objc/runtime.h struct objc_class { /** *	类是一个抽象概念，描述类的数据结构时使用的是具体的实体， *	因此可说所有的类本身也是一个对象，对象又一定是某个类的实例， *	所以这里有个 isa 指针，指向了所属的类。 *	这里比较特殊，是 Class 的 isa 指向了 Class，所以称为 metaClass，元类 */ Class _Nonnull isa OBJC_ISA_AVAILABILITY; #if !__OBJC2__ Class _Nullable super_class // 指向父类 const char * _Nonnull name // class name long version long info long instance_size // 类初始化后实例的大小 struct objc_ivar_list * _Nullable ivars // 实例变量的列表 struct objc_method_list * _Nullable * _Nullable methodLists // 类方法列表 struct objc_cache * _Nonnull cache // 缓存最近使用过的方法 struct objc_protocol_list * _Nullable protocols // 实现的协议列表 #endif } OBJC2_UNAVAILABLE; /* Use `Class` instead of `struct objc_class *` */  当 class 收到一条消息时，需要判断是否能够处理，查找时优先从cache 中找，找不到后从 method_list 中查找，找到后会添加到 cache 中。这也是一个 性能上的优化。</description>
+    </item>
+    
+    <item>
+      <title>使用 iOS 中不一样的 NSNotification Center</title>
+      <link>https://example.com/2017/2017-09-nsnotificaiton/</link>
+      <pubDate>Sat, 09 Sep 2017 12:14:36 +0800</pubDate>
+      
+      <guid>https://example.com/2017/2017-09-nsnotificaiton/</guid>
+      <description>通知中心利用观察者模式，能够很方便地进行一对多的通知，通俗点称作广播。
+NSNotification default Center 内部维护了观察列表，并负责通知的派发。
+使用 Notification 并不难，Foudation 提供了三个 class：
+ NSNotification：通知的数据结构，包含通知的具体数据，包含通知名 name，一个对象 object 和一个可选的字典 userInfo。 NSNotification Center：负责派发 notification 并维护观察者列表。每个 App 都有一个默认的实现，即 [NSNoficationCenter defaultCenter]。 NSNotificationQueue：一个缓冲队列，可以在队列中过滤、合并通知。每个线程都有默认的 queue，即 defaultQueue。  接收和发送通知 接收通知 iOS 系统默认提供了一百多种通知，方便我们使用。实现一个接收通知的代码很简单，例如当前的 ViewController 需要在 App 即将进入后台时对页面进行高斯模糊，并且设置下次 App 恢复到前台时要求登陆密码。很多银行类 App 都有这种需求。
+- (void)viewDidLoad { // 向 Notification Center 添加观察者 UIImage *currentScreenImage = ...; [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBack:) name:UIApplicationDidEnterBackgroundNotification object:currentScreenImage]; } - (void)appDidEnterBack:(NSNotification *)notification { notification.name; notification.object; notification.userInfo; // 在当前 view 上添加模糊图 // 开启登陆验证 }  当 App 进入后台时，NotificationCenter 发现我们这个 ViewController 注册了该通知，就会调用 appDidEnterBack 方法。可以在方法中访问 notification 的三个属性获取额外信息。</description>
+    </item>
+    
+    <item>
+      <title>使用 LLDB 调试 iOS</title>
+      <link>https://example.com/2017/2017-08-LLDB/</link>
+      <pubDate>Fri, 18 Aug 2017 21:10:26 +0800</pubDate>
+      
+      <guid>https://example.com/2017/2017-08-LLDB/</guid>
+      <description>一些基础知识 增加断点 使用 b 后面加上 selector，就可以增加一个断点，lldb 会打印断点的编号、描述以及断点的内存地址。
+(lldb) b -[NSView hitTest:] Breakpoint 1: where = AppKit`-[NSView hitTest:], address = 0x00007fff4f088798 (lldb)continue  因为使用 lldb 的 b 命令会让 App 暂停，因此使用 continue 命令让 App 继续运行，然后我们通过一些动作来主动触发这个断点。
+触发断点 当增加了断点后，比如上面这个 hitTest 方法，我们知道是 view 被点击后，就会被调用。因此可以点击后尝试一下：
+(lldb) continue # 进程已经恢复 Process 1230 resuming # 触发断点后，进程暂停 Process 1230 stopped # 打印出线程信息，暂停原因，以及部分汇编代码 * thread #1, queue = &#39;com.apple.main-thread&#39;, stop reason = breakpoint 1.1 frame #0: 0x00007fff4f088798 AppKit`-[NSView hitTest:] AppKit`-[NSView hitTest:]: （# 栈帧） -&amp;gt; 0x7fff4f088798 &amp;lt;+0&amp;gt;: pushq %rbp 0x7fff4f088799 &amp;lt;+1&amp;gt;: movq %rsp, %rbp 0x7fff4f08879c &amp;lt;+4&amp;gt;: pushq %r15 0x7fff4f08879e &amp;lt;+6&amp;gt;: pushq %r14 Target 0: (Xcode) stopped.</description>
+    </item>
+    
+    <item>
+      <title>iOS 中的多线程</title>
+      <link>https://example.com/2017/2017-07-ThreadProgrammingGuide-1/</link>
+      <pubDate>Wed, 12 Jul 2017 11:10:26 +0800</pubDate>
+      
+      <guid>https://example.com/2017/2017-07-ThreadProgrammingGuide-1/</guid>
+      <description>线程的使用 在常见的多线程模型中，进程即一个运行着多个线程的程序。
+线程可以理解为一条独立的代码路径，在线程中，代码一行一行执行。
+线程在使用上，iOS 推荐使用一些高级封装。例如 OperationQueue、GCD、NSNotificationQueue、系统自带的异步方法、定时器等。
+iOS 和 macOS 底层都是基于 mach port 的，常用的仍然是 POSIX 模型的多线程 API。
+线程可以拥有一个 runloop，负责监听事件，有事件发生就唤醒去处理，不然就休眠。
+线程之间是可以共用所属进程的内存空间，所以跨线程通信的方法很多：
+ 直接使用 performSelector 发送消息。 全局变量 条件变量 Runloop source 端口和套接字 消息队列  常见的线程使用技巧 避免使用太底层的 API，使用高级的 API 处理多线程编程问题。
+多使用 copy，让数据结构变为 inmutable ，比如 Swift 对于 struct 的使用。
+在主线程中绘制 UI。
+使用锁来保证数据竞争时的安全性。
+线程管理 线程的创建需要在占用内核空间，以及 RAM 联动内存，是需要成本的。
+ 联动内存：
+ 大约是 1KB 的内核内存，512KB 的次级线程，时间不到 100ms。
+因此使用线程池是比较高性能的。
+线程创建时一般需要执行一个代码执行入口，以及相关的一些配置。
+NSThread 的 isMultiThreaded 方法可以检查应用是否是多线程。
+应用退出时，detached 线程可以立刻结束，但是 joinable 线程必须全都被 join 后进程才能退出。因此 joinable 线程适用于执行不能中断的重要工作，比如向磁盘写入数据。</description>
+    </item>
+    
+    <item>
+      <title>常用排序算法：快速排序算法</title>
+      <link>https://example.com/2017/2017-07-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Sun, 02 Jul 2017 18:10:26 +0800</pubDate>
+      
+      <guid>https://example.com/2017/2017-07-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/</guid>
+      <description>快速排序算法，简称快排，其应用了递归的思想，现选择一个基准值 baseValue，然后利用这个 baseValue 将代排序的序列分割为两部分，左边是小于 base 的，右边是大于 base 的（这里以从小到大排序为例）。
+接着，递归调用左边的部分和右边部分，最终递归下去，每个部分会只有一个元素，一个元素自然是已经排好序的。然后将这些小片段 join 起来，就是一个完整的有序序列。
+一个快排序方法 快速排序也是分好多趟，每一趟都是使用最快的方法，将整个序列划分为两部分，前部分中每个值都比 base 小，后部分每个值都比 base 大。
+基于这个思想，快排序有不同的实现。
+第一个元素为基数 这个是我在《啊哈！算法》中看到的实现，选中第一个元素作为 base，然后从右边开始，找到第一个小于 base 的值，再从最左边开始找到第一个大于 base 的值，交换两者。接着继续从右找完从左找，找到后交换，如果左右相遇，先记住相遇位置，从这个位置开始，左边的序列都要比 base 小，右边的序列都要比 base 大，然后将 base 与这个相遇位置的值交换，就完成了第一次基准数归位。
+如下图，第一个值 6 作为 base，i 是从左到右的游标，j 是从右到左的游标。
+	i	j 6	1	2	7	9	3	4	5	10	8 ↑ base   j 先移动，找第一个小于 base 的值，即 5
+	i	j 6	1	2	7	9	3	4	5	10	8 ↑ base  接着 i 开始移动，找到第一个比 base 大的值，即 7</description>
+    </item>
+    
+    <item>
+      <title>在 AutoLayout 和 Masonry 中使用动画</title>
+      <link>https://example.com/2017/2017-06-Use-animation-in-Auto-Layout-and-masonry/</link>
+      <pubDate>Wed, 14 Jun 2017 23:04:39 +0000</pubDate>
+      
+      <guid>https://example.com/2017/2017-06-Use-animation-in-Auto-Layout-and-masonry/</guid>
+      <description>&lt;p&gt;动画是 iOS 中非常重要的一部分，它给用户展现出应用灵气的一面。&lt;/p&gt;
+
+&lt;h2 id=&#34;在动画块中修改-frame&#34;&gt;在动画块中修改 Frame&lt;/h2&gt;
+
+&lt;p&gt;在原来使用 frame 布局时，在 UIView 的 animate block 中对 view 的布局进行修改，动画即可生效。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[UIView animte ... {
+    view.frame = ...
+}];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;autolayout-没有-frame-时如何做动画&#34;&gt;AutoLayout 没有 Frame 时如何做动画&lt;/h2&gt;
+
+&lt;p&gt;在 AutoLayout 中，view 的布局等属性都是由约束 constraint 决定，Apple 也不建议在使用 AutoLayout 直接修改 view 的 frame。&lt;/p&gt;
+
+&lt;p&gt;在介绍之前，先看一下 UIView 的 &lt;code&gt;layoutIfNeeded&lt;/code&gt; 方法：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Auto Layout 中的 setNeedsUpdateConstraints 和 layoutIfNeeded</title>
+      <link>https://example.com/2017/2017-05-Auto-Layout-setNeedsUpdateConstraints-layoutIfNeeded/</link>
+      <pubDate>Sun, 14 May 2017 23:03:01 +0000</pubDate>
+      
+      <guid>https://example.com/2017/2017-05-Auto-Layout-setNeedsUpdateConstraints-layoutIfNeeded/</guid>
+      <description>&lt;p&gt;先抛出结论：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;setNeedsUpdateConstraints&lt;/code&gt; 保证之后肯定会调用 &lt;code&gt;updateConstraintsIfNeeded&lt;/code&gt; .&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;SetNeedsLayout&lt;/code&gt; 保证之后肯定会调用 &lt;code&gt;layoutIfNeeded&lt;/code&gt; .&lt;/p&gt;
+
+&lt;h2 id=&#34;autolayout-的本质&#34;&gt;AutoLayout 的本质&lt;/h2&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;AutoLayout 是指，用一套规则（约束）来定义视图之间的位置。&lt;/p&gt;
+
+&lt;p&gt;AutoLayout 能够让每个 view 有唯一的 frame。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;其实，这样子解释，还是让人很难理解，所以接下来会简单介绍下 AutoLayout ，在对其有所了解和深入后，再解释下面这几个问题：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;保证之后调用&lt;/code&gt; 的之后是在什么时候？&lt;/li&gt;
+&lt;li&gt;这些方法的调用时序大概是怎么样的？&lt;/li&gt;
+&lt;li&gt;为什么要先 set 一下，而不是直接 updateConstraint 和 layout&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>GCD 的一点疑惑与自解</title>
+      <link>https://example.com/2017/2017-01-abount-gdc/</link>
+      <pubDate>Thu, 19 Jan 2017 22:48:22 +0000</pubDate>
+      
+      <guid>https://example.com/2017/2017-01-abount-gdc/</guid>
+      <description>&lt;h1 id=&#34;gcd-的一点疑惑与自解&#34;&gt;GCD 的一点疑惑与自解&lt;/h1&gt;
+
+&lt;p&gt;GCD 其实已经了解了很久了，在实际工程中也会经常用，但是其实很多实践都是浅尝辄止。&lt;/p&gt;
+
+&lt;p&gt;最近又在回头看这块儿的内容，有一些知识点，原来不甚明白的，现在有了新的认识，刚好也记录下。&lt;/p&gt;
+
+&lt;p&gt;GCD 是一套方案，GCD 本身管理了一组线程池，GCD 负责线程池中的线程创建销毁、并且这种能力是动态化的，即可以充分利用当前 CPU 的多核特性。
+添加到 GCD 队列中的任务，会由 GCD 来决定运行在哪一个线程上。也就是说，GCD Queue 是一个抽象概念， task 是添加到 Queue 中不假，但是实际仍然是运行在线程上的。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 目录结构</title>
+      <link>https://example.com/2016/2016-09-ios-project-structure/</link>
+      <pubDate>Sat, 24 Sep 2016 22:38:13 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2016-09-ios-project-structure/</guid>
+      <description>&lt;p&gt;最近整理了下工程的目录结构，有一些体会，现在写出来&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Swift 中闭包 closure 的对象捕获</title>
+      <link>https://example.com/2016/2016-09-swift-closure-capture/</link>
+      <pubDate>Wed, 14 Sep 2016 22:32:18 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2016-09-swift-closure-capture/</guid>
+      <description>&lt;p&gt;在 swift 中，closure 可以捕获当前作用域中的变量，并且持有它。&lt;/p&gt;
+
+&lt;p&gt;函数是闭包的一种，因此函数也是可以持有变量的。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Swift 中的错误处理：try, try?, try!</title>
+      <link>https://example.com/2016/2016-08-about-swift-try/</link>
+      <pubDate>Wed, 24 Aug 2016 21:59:29 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2016-08-about-swift-try/</guid>
+      <description>&lt;p&gt;错误处理（Error Handing）是很多语言都有的特性，程序中避免不了会出现错误或者异常的情况，我们需要对于这些「非期望」发生的错误进行正确的处理。本文很简单的将 Objective-C 和 Swift 中的错误处理做一点描述，描述一下自己的想法。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 应用状态详解</title>
+      <link>https://example.com/2016/2016-07-ios-application-state/</link>
+      <pubDate>Fri, 15 Jul 2016 20:12:06 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2016-07-ios-application-state/</guid>
+      <description>iOS 应用状态详解 iOS 与其他操作系统有很多不同，当 App 不在当前运行时，可以使用的资源特别有限。
+虽说 App 传统上讲只有两种状态，前台和后台。但是这种说法是不太清晰的。
+如果要清楚的讲明白 App 在不同状态下的异同点，那么可以从三个维度去看：
+ 是否可见。App 是否显示在屏幕上 能不能接收事件，比如触摸、摇晃手机等 能不能执行代码。这个是我们比较关心的  App 的 5 中状态 一个 App ，不管是处于什么情况下，总共的状态有五种，分别是：
+ 没有运行状态 活跃 不活跃 后台运行 暂停运行  后面会详细的讲解某个状态以及状态之间的转换。 非运行状态 很多 App 都是这个状态，在此状态下，设备的 RAM 中没有加载该 App 的任何代码。
+App 会长期地处于该中状态。在这种状态下，App 肯定是不会显示在屏幕上的，并且也不能接受事件，当然也不能执行代码。简单的理解为死掉的即可。
+活跃状态 当 App 在运行时，就是此种状态。
+此时 App 可以接收事件、运行代码、显示内容。这种状态即平时讲的前台运行。
+非活跃状态 App 在某些情况下，会进入到该状态。
+在这种状态下，App 的内容有显示在屏幕上，并且能够执行代码，但是无法接收事件。
+App 一般在下列情况下，会进入这个状态：
+iOS 设备接收到 短信、电话、通知等，也就是说对于用户讲，App 本身不是第一个被关注的内容。
+这种情况下，App 的内容也显示在屏幕上，以一种模态的形式展现。
+后台运行 当用户使用 Home 键或者其他方式切换到另一个 App 或进入桌面后。App 将进入后台运行模式。</description>
+    </item>
+    
+    <item>
+      <title>WWDC 2016 Session 205 - What&#39;s new in CocoaTouch 总结</title>
+      <link>https://example.com/2016/2017-06-What-new-in-cocoatouch/</link>
+      <pubDate>Sat, 25 Jun 2016 17:03:22 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2017-06-What-new-in-cocoatouch/</guid>
+      <description>今天的 Session 将主要将四件事情：
+ 你可能已经在 App 中使用的一些核心技巧，我们会讨论如何使用它们构建更好的 App 讨论如何通过 UIKit 和其他一些 API 构建更好的用户界面 展示你可以将哪些新功能集成到你的应用中 应用如何通过新的系统 extension 来拓展自己  Core Technologies Adaptivity 自从 Apple 推出了更大屏幕的 iPad 之后，开发者在屏幕的适配上，将会花费更多的时间。
+Apple Pencil 、Smart Keyboard 等新的硬件，在你的 App 中使用后，也能够增加更多的亮点。
+在之前，可以通过 Size Class 来进行屏幕的自适应，比如 iPhone 是 compact，iPad 是 regular。现在有了新的 iPad Pro，当然不会是新增一种类型，因为在 Framework 中有很多的工具来表示这种屏幕尺寸。Apple 在 SizeClass 中增加了新的特性来支持各种设备的适配。
+另外，iPad Air 2 和 Pro 能够每秒扫描屏幕 120 次，这远远大于屏幕上内容的刷新频率。开发者可以使用有关 Apple Pencil 、3D Touch 等 API 来做出更棒的 App。
+Swift 3 在 Swift 3 中，很多 API 都进行了重写，因此在使用 Swift Coding 时将会有更好的体验。比如新的字体，WhiteColor 和 blackColor 简化为 white 和 black，以及与 Core Graphics 相关的一些 API，都做了简化。</description>
+    </item>
+    
+    <item>
+      <title>2015 年终总结</title>
+      <link>https://example.com/2016/2015-year-end-summary/</link>
+      <pubDate>Fri, 01 Jan 2016 15:07:21 +0000</pubDate>
+      
+      <guid>https://example.com/2016/2015-year-end-summary/</guid>
+      <description>&lt;p&gt;2015年已经过去了，现在好像比较流行弄啥子年终总结，我也凑个热闹。&lt;/p&gt;
+
+&lt;p&gt;2014 年 11 月 11 日入职百度，做 iOS 实习生。之前的实习入职面试也是故事颇多，总得来说还是比较幸运的，遇到了很好的 leader 和 team。&lt;/p&gt;
+
+&lt;p&gt;15 年初，学习 iOS 当时已经有半年了，虽然是断断续续自学的半年，但是一路上还是学的比较辛苦。其中的过程等之后有时间再总结下自己的学习之旅。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Mac  下搭建 hexo 博客系统，使用 Github</title>
+      <link>https://example.com/2015/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github/</link>
+      <pubDate>Fri, 13 Nov 2015 14:41:47 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-11-Mac-%E4%B8%8B%E6%90%AD%E5%BB%BA-hexo-%E5%8D%9A%E5%AE%A2%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8-Github/</guid>
+      <description>之前用 Octopress 搭建了 blog，这次迁移到 hexo 上，随便写点东西记录一下。
+Github Pages 这个其实是第一步啦，Mac 是自带 Git 的，不过版本可能不高，有必要可以升级下。
+关于配置 Github SSH 以及 Github Pages 的创建因为之前已经做过了，就不再做介绍了，网上文章很多，随手一搜就好。
+Homebrew 这可是个神器，Mac 下安装各种应用特别舒服。我们主要用它来安装 node.js。
+如果你的 homebrew 是之前很久安装的，可能需要升级一下，因为 OS X EL Capitan 弄了很多权限之类的东西。
+// 升级 homebrew brew update  Node.js HomeBrew 安装好了之后，直接安装 node
+// 安装 node brew install node  如果安装的过程中，出现了错误。应该就是 OS X EL Capitan 的问题，SIP 机制不允许对 /usr 目录做修改。尝试使用一下命令解决：
+sudo chown -R $(whoami):admin /usr/local  如果还是没有解决，去 homebrew 的文档页面中详细查询：homebrew OS X 10.11</description>
+    </item>
+    
+    <item>
+      <title>ScrollView 中使用 autoLayout 的坑与填坑</title>
+      <link>https://example.com/2015/2015-11-ScrollView-%E4%B8%AD%E4%BD%BF%E7%94%A8-autoLayout-%E7%9A%84%E5%9D%91%E4%B8%8E%E5%A1%AB%E5%9D%91/</link>
+      <pubDate>Fri, 13 Nov 2015 14:00:25 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-11-ScrollView-%E4%B8%AD%E4%BD%BF%E7%94%A8-autoLayout-%E7%9A%84%E5%9D%91%E4%B8%8E%E5%A1%AB%E5%9D%91/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;ScrollView 是 UIKit 中很重要的一个组件，TableView 和 UIWebView 等很多涉及到滑动的视图都有它的影子，在之前使用代码布局的时代，只要简单的进行配置，就 OK 了。但是在 AutoLayout 的时代，ScrollView 就存在了很多坑，今天就是分析坑和填坑的。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 并发编程指南(五)-将现有代码迁移为可并发</title>
+      <link>https://example.com/2015/2015-05-12-ios-bing-fa-bian-cheng-zhi-nan-wu-jiang-xian-you-dai-ma-qian-yi-wei-ke-bing-fa/</link>
+      <pubDate>Tue, 12 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-05-12-ios-bing-fa-bian-cheng-zhi-nan-wu-jiang-xian-you-dai-ma-qian-yi-wei-ke-bing-fa/</guid>
+      <description>&lt;p&gt;将现有的代码迁移至可并发，例如 GCD 或 NSOperation ，有很多办法，尽管可能不是所有的代码都需要迁移，但是部分迁移能够提升程序性能：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使用dispatch queue和Operaiton queue相比线程拥有许多优点：&lt;/li&gt;
+&lt;li&gt;应用不再需要存储线程栈到内存空间&lt;/li&gt;
+&lt;li&gt;消除了创建和配置线程的代码&lt;/li&gt;
+&lt;li&gt;消除了管理和调度线程工作的代码&lt;/li&gt;
+&lt;li&gt;简化了你要编写的代码&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本章节主要提供一些迁移相关的 tips&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 并发编程指南(四)-Dispatch Sources</title>
+      <link>https://example.com/2015/2015-05-08-ios-bing-fa-bian-cheng-zhi-nan-si-dispatch-sources/</link>
+      <pubDate>Fri, 08 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-05-08-ios-bing-fa-bian-cheng-zhi-nan-si-dispatch-sources/</guid>
+      <description>&lt;p&gt;每当你与系统底层进行交互时，你必须要做好这种任务可能会大量耗时的准备。跟在自己的进程内相比较，调用内核或者其他系统层次涉及到的改变是相当耗时的。因为这些原因，许多系统的库都提供了异步的 API，允许你的代码向系统提交请求后继续做别的工作，这时请求仍在进行中。GCD 就是依据这种方式，允许你提交请求，并且使用 block 和调度队列来回调请求结果。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Swift 学习笔记（二）</title>
+      <link>https://example.com/2015/2015-05-02-swift-xue-xi-bi-ji-2/</link>
+      <pubDate>Sat, 02 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-05-02-swift-xue-xi-bi-ji-2/</guid>
+      <description>&lt;p&gt;今天学习一些基本运算符想关的知识。运算符是检查、改变、合并值的特殊符号或短语。&lt;/p&gt;
+
+&lt;p&gt;另一个很重要的地方是将以前变成容易因为运算法导致的问题解决了一哈。增加了区间运算符，还加入了 OC 中没有的运算符重载&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>AutoLayout 读书笔记(三)-可视化格式</title>
+      <link>https://example.com/2015/2015-04-30-autolayout-du-shu-bi-ji-san-ke-shi-hua-ge-shi/</link>
+      <pubDate>Thu, 30 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-30-autolayout-du-shu-bi-ji-san-ke-shi-hua-ge-shi/</guid>
+      <description>&lt;p&gt;AutoLayout 目前有三种创建约束的方式，第一种为 IB 中手动创建、第二种为代码中使用 NSLayoutConstraint 类，现在我们学习第三种，使用 &lt;code&gt;格式化语言&lt;/code&gt; 创建约束。&lt;/p&gt;
+
+&lt;p&gt;需要记住的是，不管何种方式创建的约束，都是 NSLayoutConstraint 类的实例，并且遵循 &lt;code&gt;y = mx + b&lt;/code&gt; 关系&lt;/p&gt;
+
+&lt;h2 id=&#34;可视化约束的格式介绍&#34;&gt;可视化约束的格式介绍&lt;/h2&gt;
+
+&lt;p&gt;NSLayoutConstraint 类方法创建可视化的约束，尽管可视化约束的内容能够关联多个视图，但是它们会被 NSLayoutConstraint 翻译为每次只关联一个或多个视图。这种方式创建的约束为数组的形式。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 并发编程指南(三)-Dispatch Queues</title>
+      <link>https://example.com/2015/2015-04-30-ios-bing-fa-bian-cheng-zhi-nan-san-dispatch-queues/</link>
+      <pubDate>Thu, 30 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-30-ios-bing-fa-bian-cheng-zhi-nan-san-dispatch-queues/</guid>
+      <description>&lt;p&gt;GCD 调度队列是执行任务的强大工具，可以使用同步或异步方式执行任意的代码块。调度队列可以执行几乎所有的单线程代码。相比于线程代码，其更易于使用，且效率要高。&lt;/p&gt;
+
+&lt;p&gt;本章将介绍调度队列，以及如何使用它执行大多数任务。&lt;/p&gt;
+
+&lt;h2 id=&#34;dispatch-queue-介绍&#34;&gt;Dispatch Queue 介绍&lt;/h2&gt;
+
+&lt;p&gt;调度队列是在程序中执行同步或异步代码的比较简单的一种方式，任务就是程序中需要执行的一些简单的工作。举个🌰，比如执行一些计算，创建或者修改一个数据结构，从文件中读取数据进行处理，等等这样的一些工作。你通过在函数或 block 中写入相应的代码来定义任务，然后将其添加至调度队列。&lt;/p&gt;
+
+&lt;p&gt;调度队列是一种类似对象的结构，管理你提交给它的任务。所有的调度队列都是先进先出（FIFO）的，因此任务开始执行的顺序与添加顺序一致。GCD 已经提供了一些常用的调度队列，你也可以根据需求创建新的调度队列。下面的表列出了几种调度队列，并做了简要的说明&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Swift 学习笔记(一)</title>
+      <link>https://example.com/2015/2015-04-29-swift-xue-xi-bi-ji-1/</link>
+      <pubDate>Wed, 29 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-29-swift-xue-xi-bi-ji-1/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;swift 这门语言一直想取深入了解下，苦于时间少，现在快毕业了，呆在学校时间还算比较充足，所以开始学习一哈。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 并发编程指南（二）- Operation Queue</title>
+      <link>https://example.com/2015/2015-04-27-ios-bing-fa-bian-cheng-zhi-nan-er-operation-queue/</link>
+      <pubDate>Mon, 27 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-27-ios-bing-fa-bian-cheng-zhi-nan-er-operation-queue/</guid>
+      <description>&lt;p&gt;Cocoa operations 通过面向对象的方式封装了执行异步操作的工作。operations 是设计用来连接 operation queue。因为它们是基于 Objective-C 的，operations 常用于 iOS 和 OS X 中。&lt;/p&gt;
+
+&lt;p&gt;本章节描述了如何定义和使用 operations&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>AutoLayout 读书笔记(二)</title>
+      <link>https://example.com/2015/2015-04-23-autolayout-du-shu-bi-ji-er/</link>
+      <pubDate>Thu, 23 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-23-autolayout-du-shu-bi-ji-er/</guid>
+      <description>&lt;h2 id=&#34;约束&#34;&gt;约束&lt;/h2&gt;
+
+&lt;p&gt;AutoLayout 是一种约束满足系统，约束的本质就是&lt;code&gt;限制&lt;/code&gt;,布局中，创建的每一个规则都提出一个要求，这些要求规定了视图中一个部分与另一个部分之间的关系，这些规定具有优先级，AutoLayout 系统根据所有的规则，确定唯一的布局方式。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>AutoLayout 读书笔记(一)</title>
+      <link>https://example.com/2015/2015-04-22-autolayout-du-shu-bi-ji-1/</link>
+      <pubDate>Wed, 22 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-22-autolayout-du-shu-bi-ji-1/</guid>
+      <description>&lt;h2 id=&#34;第一章-autolayout-介绍&#34;&gt;第一章 AutoLayout 介绍&lt;/h2&gt;
+
+&lt;p&gt;###1.1 由来：&lt;/p&gt;
+
+&lt;p&gt;前身为 Cassowary 约束解析工具包，本质是通过定义的约束构成联立方程组，然后求解，得出界面元素唯一的布局可能。&lt;/p&gt;
+
+&lt;p&gt;###1.2 好处都有啥？&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;几何关系&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;工作原理为通过创建界面上元素之间的关系从而实现布局。对于自然界之间的一些关系，可以用一些统一的规则来描述，能够建立界面元素之间强健的几何关系，在一定程度上使用抽象的语言描述。&lt;/p&gt;
+
+&lt;p&gt;改变 AutoLayout 约束的值，还可以创建出优美的动画。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>创建自己的cocoaPods - podspec 文件</title>
+      <link>https://example.com/2015/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian/</link>
+      <pubDate>Sat, 04 Apr 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;现在很多开源的第三方库都支持 cocoaPods 来管理，这对于 iOS 开发人员来说是一个福音，基础的运用为创建 &lt;code&gt;podfile&lt;/code&gt; 然后在文件中加入自己需要依赖的第三方库就可以啦。不过在实际的使用中，有可能需要依赖自己的库或者公司的库，或者有些库没有加入到 cocoaPods 中，这个时候就需要我们制定自己的 cocoaPods 库了。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 并发编程指南(一)</title>
+      <link>https://example.com/2015/2015-03-09-ios-bing-fa-bian-cheng-zhi-nan-1/</link>
+      <pubDate>Mon, 09 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-03-09-ios-bing-fa-bian-cheng-zhi-nan-1/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为翻译苹果官方文档，旨在自我学习，翻译之处会有坑，请酌情参考&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;简介&#34;&gt;简介&lt;/h2&gt;
+
+&lt;p&gt;并发是指多件事情同时发生。随着多核 CPU 的实现，每个处理器上的核心只会增加，开发人员需要新的方式来充分利用它们。尽管像 OS X 和 iOS 这样的操作系统（自卖自夸，别的 OS 被你吃了吗？）能够并行的运行多个程序，其中大多数的程序运行在后台，并且经常需要一小段 CPU 时间来执行任务。运行在前台的程序与用户交互并且占用大量的 CPU 时间。如果一个程序有很多任务去做但是只有一部分内核可以使用，那么额外的计算资源将被浪费。&lt;/p&gt;
+
+&lt;p&gt;在过去，在程序中引入并发需要创建额外的一个或多个线程。不幸的是，写线程级别的代码很具有挑战性。线程是很底层的工具，必须手动来管理。对于一个程序，由于线程的最佳数目基于系统负载和底层硬件动态改变，实现一个正确的线程解决方案是非常困难的。此外，线程的同步机制通常会给软件设计增加复杂性和带来风险，并不能保证一定会提高程序性能。&lt;/p&gt;
+
+&lt;p&gt;相比较传统的基于线程的系统和应用程序，OS X 和 iOS 更多地采用异步方法来执行并行的任务。应用程序只需要定义特定的任务，然后让系统执行它们，而不是直接创建线程。通过让操作系统来管理线程，使得应用程序具有了原生线程不可能带来的可扩展性。开发者也有了更加简单高效的编程模式。&lt;/p&gt;
+
+&lt;p&gt;本文档描述了并发编程的技术和技巧，使用与 OS X 和 iOS。&lt;/p&gt;
+
+&lt;p&gt;文档包含以下章节：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;并行和程序设计：介绍了基本的异步程序设计和异步执行自定义任务的技巧&lt;/li&gt;
+&lt;li&gt;Operation Queues（操作队列）：指出如何使用 Objective-C 对象封装任务并且执行&lt;/li&gt;
+&lt;li&gt;Dispatch Queue（分发队列）：如何并行的执行任务在 C 语言编程中&lt;/li&gt;
+&lt;li&gt;Dispatch Sources：如何异步的处理系统时间&lt;/li&gt;
+&lt;li&gt;Migrating Away from Threads：介绍如何将已存在的基于线程的代码迁移至新的技术上。&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
+      <title>将你的iOS 工程转换为支持64位的版本</title>
+      <link>https://example.com/2015/2015-03-05-jiang-ni-de-ios-gong-cheng-zhuan-huan-wei-zhi-chi-64wei-de-ban-ben/</link>
+      <pubDate>Thu, 05 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-03-05-jiang-ni-de-ios-gong-cheng-zhuan-huan-wei-zhi-chi-64wei-de-ban-ben/</guid>
+      <description>&lt;p&gt;总的来说，可以根据以下步骤创建一个同时支持32位和64位运行环境的 App:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;确保 Xcode 版本至少为 5.0.1&lt;/li&gt;
+&lt;li&gt;打开你的项目，Xcode 提示适配你的工程，编译64位版本的时候可能会给你提出一些重要的警告或者错误。&lt;/li&gt;
+&lt;li&gt;设置你的项目最低为 iOS 5.1.1, iOS 5.1 之前的系统不支持64位&lt;/li&gt;
+&lt;li&gt;修改工程的编译指令集为 “Standard Architectures”，即 Xcode 默认版本，其中包括 ARMv7 和 ARM64&lt;/li&gt;
+&lt;li&gt;更新你的 App 以支持64位运行环境，编译器发出的警告和错误能够引导你处理整个过程，但是 Xcode 不是万能的，你还需要根据本文档来做一些事情。&lt;/li&gt;
+&lt;li&gt;在 64 位的真机上测试你的 App，模拟器也可以帮助你测试，但是可能有一部分问题只有在真机上才会出现。&lt;/li&gt;
+&lt;li&gt;使用 Instruments 来分析内存消耗以及性能。&lt;/li&gt;
+&lt;li&gt;提交支持32位和64位的 App&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;接下来的内容会陈列一些在转换过程中经常出现的问题，根据引导仔细检查你的代码。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>64 Bit Transition Guide for Cocoa Touch</title>
+      <link>https://example.com/2015/2015-03-02-64-bit-transition-guide-for-cocoa-touch-yi-wen-ru-he-rang-ni-de-app-zhi-chi-64wei/</link>
+      <pubDate>Mon, 02 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-03-02-64-bit-transition-guide-for-cocoa-touch-yi-wen-ru-he-rang-ni-de-app-zhi-chi-64wei/</guid>
+      <description>&lt;p&gt;Apple 为了让搭载64位处理器的 iOS 设备性能得到发挥，下了最后通牒：
+&amp;gt; As we announced in October, beginning February 1, 2015 new iOS apps submitted to the App Store must include 64-bit support and be built with the iOS 8 SDK. Beginning June 1, 2015 app updates will also need to follow the same requirements.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;从 2015 年 2 月 1 日开始，所有新提交的 App 必须支持64位，并且使用 iOS8 SDK 编译，从 2015 年 6 月 1 日开始，更新版本的 App 也需要这样做。&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    
+    <item>
+      <title>iOS 工程中的 Architectures</title>
+      <link>https://example.com/2015/2015-03-02-ios-gong-cheng-zhong-de-architectures/</link>
+      <pubDate>Mon, 02 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2015/2015-03-02-ios-gong-cheng-zhong-de-architectures/</guid>
+      <description>&lt;h2 id=&#34;arm-是什么&#34;&gt;Arm 是什么&lt;/h2&gt;
+
+&lt;p&gt;Arm 处理器是 Arm 公司面向市场推出的 RISC(精简指令集) 微处理器，目前手机上的 CPU 都是 RISC 类型，跟传统 PC 端的 CPU(CISC) 相比，具有体积小、低功耗、低成本、高性能的特点，很适合于移动终端。一般电脑上的 CPU 都是 CISC 类型的，iOS 模拟器是将 Arm 指令转换后在 X86 上运行。另外，Apple 本身就是 ARM 最大的股东之一。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

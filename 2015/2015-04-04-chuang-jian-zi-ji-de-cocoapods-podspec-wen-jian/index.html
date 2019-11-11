@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2015/2015-03-09-ios-bing-fa-bian-cheng-zhi-nan-1/" />
+  <link rel="next" href="https://example.com/2015/2015-04-22-autolayout-du-shu-bi-ji-1/" />
+  <link rel="canonical" href="https://example.com/2015/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           创建自己的cocoaPods - podspec 文件 | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="创建自己的cocoaPods - podspec 文件 | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "创建自己的cocoaPods - podspec 文件",
+    "headline" : "创建自己的cocoaPods - podspec 文件",
+    "description" : "\x3cblockquote\x3e\n\x3cp\x3e现在很多开源的第三方库都支持 cocoaPods 来管理，这对于 iOS 开发人员来说是一个福音，基础的运用为创建 \x3ccode\x3epodfile\x3c\/code\x3e 然后在文件中加入自己需要依赖的第三方库就可以啦。不过在实际的使用中，有可能需要依赖自己的库或者公司的库，或者有些库没有加入到 cocoaPods 中，这个时候就需要我们制定自己的 cocoaPods 库了。\x3c\/p\x3e\n\x3c\/blockquote\x3e",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2015",
+    "datePublished": "2015-04-04 00:00:00 \x2b0000 UTC",
+    "dateModified" : "2015-04-04 00:00:00 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2015\/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian\/",
+    "wordCount" : "85",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">创建自己的cocoaPods - podspec 文件</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2015-04-04 itemprop="datePublished">April 4, 2015</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          <blockquote>
+<p>现在很多开源的第三方库都支持 cocoaPods 来管理，这对于 iOS 开发人员来说是一个福音，基础的运用为创建 <code>podfile</code> 然后在文件中加入自己需要依赖的第三方库就可以啦。不过在实际的使用中，有可能需要依赖自己的库或者公司的库，或者有些库没有加入到 cocoaPods 中，这个时候就需要我们制定自己的 cocoaPods 库了。</p>
+</blockquote>
+
+<h2 id="cocoapods-基本原理">CocoaPods 基本原理</h2>
+
+<h3 id="cocoapods-的基本流程大概为">CocoaPods 的基本流程大概为：</h3>
+
+<ol>
+<li>初始化一个 WorkSpace，将原有的 project 包含进来，同时创建一个专用于管理依赖的 project： <code>Pods</code> 。这个时候，你的项目应该是这样的结构：一个 WorkSpace 中有两个 project ，一个是你真正的项目，另一个是用于管理依赖的 Pods project。</li>
+<li>通过 git 下载 <code>Podfile</code> 文件中的第三方库，每一个库作为 Pods 项目的 target，编译生成一个以库名命名的静态库文件，例如 <code>AFNetworking.a</code>。</li>
+<li>将所有的 .a 文件合并为最终主项目依赖的静态库，名为 <code>libPods.a</code></li>
+<li>依据每个第三方库的.podspec 文件，将其被添加进工程中。.podspec文件可以标识该第三方库所需要的源码文件、依赖库、编译选项，以及其他第三方库需要的配置。</li>
+<li>最后，Pods 修改主项目中的编译、链接参数，让你的项目完美集成第三方库。</li>
+</ol>
+
+<h3 id="添加第三方库">添加第三方库</h3>
+
+<p>当Cocoapods向项目中增加了一个第三方库的时候，不仅仅是将添加代码这么简单。由于每个第三方库有不同的target，所以每次添加第三方库时，都只有几个文件被添加。每个源代码都需要：</p>
+
+<h4 id="一个包含编译选项的-xcconfig文件">一个包含编译选项的.xcconfig文件</h4>
+
+<p>这个文件主要描述当前的库需要哪些系统库的支持，举几个例子就很容易明白啦：</p>
+
+<ul>
+<li><p>AFNetworking：</p>
+
+<pre><code>PODS_AFNETWORKING_OTHER_LDFLAGS = -framework &quot;CoreGraphics&quot; 
+-framework &quot;MobileCoreServices&quot; 
+-framework &quot;Security&quot; 
+-framework &quot;SystemConfiguration&quot;
+</code></pre></li>
+
+<li><p>Base64：</p>
+
+<pre><code>Base64 只提供了方法，不需要系统库支持，所以这个文件为空
+</code></pre></li>
+
+<li><p>FMDB：</p>
+
+<pre><code>PODS_FMDB_OTHER_LDFLAGS = -l&quot;sqlite3&quot;
+</code></pre></li>
+
+<li><p>Reachability：</p>
+
+<pre><code>PODS_REACHABILITY_OTHER_LDFLAGS = 
+-framework &quot;SystemConfiguration&quot;
+</code></pre></li>
+</ul>
+
+<h4 id="一个同时拥有编译设置和cocoapods默认配置的私有-xcconfig文件">一个同时拥有编译设置和CocoaPods默认配置的私有.xcconfig文件</h4>
+
+<p>xcconfig文件正如其名字一样，就是xcode里的config文件。 我们在开发过程中，需要配置一些参数，这些都可以在xcode工程的setting对项目进行配置，xcconfig就是将这些配置项以文件的形式独立出来，方便共享与配置。比如两个项目用到相同的配置，那么只需要在xcode中选择对应的xcconfig文件即可，方便与灵活共享。</p>
+
+<p>CocoaPods 需要这个文件来设置当前 target 的配置选项，从而正确的编译出静态库 .a 文件。</p>
+
+<h4 id="编译所必须的prefix-pch文件">编译所必须的prefix.pch文件</h4>
+
+<h4 id="另一个编译必须的文件dummy-m">另一个编译必须的文件dummy.m</h4>
+
+<p>一旦每个pod的target都完成了以上步骤，整个Pods的Target就会被创建。这增加了相同的文件，与另外几个。如果有源代码中包含了资源bundle，向app的target中添加bundle的方式将写入Pods-Resources.sh。还有一个叫Pods-environment.h的文件，文件中含有许多检查组件是否来自pod的宏定义。最后，将生成两个确认文件，一个.plist文件，一个用于给用户查阅许可信息的markdown文件。</p>
+
+<blockquote>
+<p>待续</p>
+</blockquote>
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2015/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian/>https://example.com/2015/2015-04-04-chuang-jian-zi-ji-de-cocoapods-podspec-wen-jian/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2015/2015-03-09-ios-bing-fa-bian-cheng-zhi-nan-1/" class="prev" rel="prev" title="iOS 并发编程指南(一)"><i class="iconfont icon-left"></i>&nbsp;iOS 并发编程指南(一)</a>
+         
+        
+        <a href="https://example.com/2015/2015-04-22-autolayout-du-shu-bi-ji-1/" class="next" rel="next" title="AutoLayout 读书笔记(一)">AutoLayout 读书笔记(一)&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    <script src="/js/vendor_no_gallery.min.js" async=""></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>

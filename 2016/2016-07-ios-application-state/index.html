@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noodp"/>
+  <meta name="author" content="Charvel">
+  <meta name="description" content="charvel&#39;s blog">
+  
+  
+  <link rel="prev" href="https://example.com/2016/2017-06-What-new-in-cocoatouch/" />
+  <link rel="next" href="https://example.com/2016/2016-08-about-swift-try/" />
+  <link rel="canonical" href="https://example.com/2016/2016-07-ios-application-state/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <title>
+       
+       
+           iOS 应用状态详解 | Charvel&#39;s home
+       
+  </title>
+  <meta name="title" content="iOS 应用状态详解 | Charvel&#39;s home">
+    
+  
+  <link rel="stylesheet" href="/font/iconfont.css">
+  <link rel="stylesheet" href="/css/main.min.css">
+
+
+  
+  
+ 
+
+<script type="application/ld+json">
+ "@context" : "http://schema.org",
+    "@type" : "BlogPosting",
+    "mainEntityOfPage": {
+         "@type": "WebPage",
+         "@id": "https:\/\/example.com"
+    },
+    "articleSection" : "posts",
+    "name" : "iOS 应用状态详解",
+    "headline" : "iOS 应用状态详解",
+    "description" : "iOS 应用状态详解 iOS 与其他操作系统有很多不同，当 App 不在当前运行时，可以使用的资源特别有限。\n虽说 App 传统上讲只有两种状态，前台和后台。但是这种说法是不太清晰的。\n如果要清楚的讲明白 App 在不同状态下的异同点，那么可以从三个维度去看：\n 是否可见。App 是否显示在屏幕上 能不能接收事件，比如触摸、摇晃手机等 能不能执行代码。这个是我们比较关心的  App 的 5 中状态 一个 App ，不管是处于什么情况下，总共的状态有五种，分别是：\n 没有运行状态 活跃 不活跃 后台运行 暂停运行  后面会详细的讲解某个状态以及状态之间的转换。 非运行状态 很多 App 都是这个状态，在此状态下，设备的 RAM 中没有加载该 App 的任何代码。\nApp 会长期地处于该中状态。在这种状态下，App 肯定是不会显示在屏幕上的，并且也不能接受事件，当然也不能执行代码。简单的理解为死掉的即可。\n活跃状态 当 App 在运行时，就是此种状态。\n此时 App 可以接收事件、运行代码、显示内容。这种状态即平时讲的前台运行。\n非活跃状态 App 在某些情况下，会进入到该状态。\n在这种状态下，App 的内容有显示在屏幕上，并且能够执行代码，但是无法接收事件。\nApp 一般在下列情况下，会进入这个状态：\niOS 设备接收到 短信、电话、通知等，也就是说对于用户讲，App 本身不是第一个被关注的内容。\n这种情况下，App 的内容也显示在屏幕上，以一种模态的形式展现。\n后台运行 当用户使用 Home 键或者其他方式切换到另一个 App 或进入桌面后。App 将进入后台运行模式。",
+    "inLanguage" : "zh-CN",
+    "author" : "Charvel",
+    "creator" : "Charvel",
+    "publisher": "Charvel",
+    "accountablePerson" : "Charvel",
+    "copyrightHolder" : "Charvel",
+    "copyrightYear" : "2016",
+    "datePublished": "2016-07-15 20:12:06 \x2b0000 UTC",
+    "dateModified" : "2016-07-15 20:12:06 \x2b0000 UTC",
+    "url" : "https:\/\/example.com\/2016\/2016-07-ios-application-state\/",
+    "wordCount" : "172",
+    "keywords" : [  "Charvel\x27s home"]
+}
+</script>
+
+</head>
+
+  
+
+
+  <body class="">
+    <div class="wrapper">
+        <nav class="navbar">
+    <div class="container">
+        <div class="navbar-header header-logo">
+        	<a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a>
+        </div>
+        <div class="menu navbar-right">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile" id="nav-mobile" style="display: none">
+     <div class="container">
+        <div class="navbar-header">
+            <div>  <a href="javascript:void(0);" class="theme-switch"><i class="iconfont icon-xihuan"></i></a>&nbsp;<a href="https://example.com">Charvel&#39;s home</a></div>
+            <div class="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+     
+          <div class="menu" id="mobile-menu">
+                
+                
+                <a class="menu-item" href="/posts/" title="">Blog</a>
+                
+                <a class="menu-item" href="/categories/" title="">Categories</a>
+                
+                <a class="menu-item" href="/tags/" title="">Tags</a>
+                
+                <a class="menu-item" href="/about/" title="">About</a>
+                
+        </div>
+    </div>
+</nav>
+    	 <main class="main">
+          <div class="container">
+      		
+<article class="post-warp" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">iOS 应用状态详解</h1>
+        <div class="post-meta">
+                Written by <a itemprop="name" href="https://example.com" rel="author">Charvel</a> with ♥ 
+                <span class="post-time">
+                on <time datetime=2016-07-15 itemprop="datePublished">July 15, 2016</time>
+                </span>
+                in
+                
+        </div>
+    </header>
+    <div class="post-content">
+        
+
+        
+
+        
+        
+     
+          
+          
+          
+
+          
+          
+          
+
+          
+
+<h1 id="ios-应用状态详解">iOS 应用状态详解</h1>
+
+<p>iOS 与其他操作系统有很多不同，当 App 不在当前运行时，可以使用的资源特别有限。</p>
+
+<p>虽说 App 传统上讲只有两种状态，前台和后台。但是这种说法是不太清晰的。</p>
+
+<p>如果要清楚的讲明白 App 在不同状态下的异同点，那么可以从三个维度去看：</p>
+
+<ul>
+<li>是否可见。App 是否显示在屏幕上</li>
+<li>能不能接收事件，比如触摸、摇晃手机等</li>
+<li>能不能执行代码。这个是我们比较关心的</li>
+</ul>
+
+<h2 id="app-的-5-中状态">App 的 5 中状态</h2>
+
+<p>一个 App ，不管是处于什么情况下，总共的状态有五种，分别是：</p>
+
+<ul>
+<li>没有运行状态</li>
+<li>活跃</li>
+<li>不活跃</li>
+<li>后台运行</li>
+<li>暂停运行</li>
+</ul>
+
+<p>后面会详细的讲解某个状态以及状态之间的转换。
+<!-- more --></p>
+
+<h3 id="非运行状态">非运行状态</h3>
+
+<p>很多 App 都是这个状态，在此状态下，设备的 RAM 中没有加载该 App 的任何代码。</p>
+
+<p>App 会长期地处于该中状态。在这种状态下，App 肯定是不会显示在屏幕上的，并且也不能接受事件，当然也不能执行代码。简单的理解为死掉的即可。</p>
+
+<h3 id="活跃状态">活跃状态</h3>
+
+<p>当 App 在运行时，就是此种状态。</p>
+
+<p>此时 App 可以接收事件、运行代码、显示内容。这种状态即平时讲的前台运行。</p>
+
+<h3 id="非活跃状态">非活跃状态</h3>
+
+<p>App 在某些情况下，会进入到该状态。</p>
+
+<p>在这种状态下，App 的内容有显示在屏幕上，并且能够执行代码，但是无法接收事件。</p>
+
+<p>App 一般在下列情况下，会进入这个状态：</p>
+
+<p>iOS 设备接收到 短信、电话、通知等，也就是说对于用户讲，App 本身不是第一个被关注的内容。</p>
+
+<p>这种情况下，App 的内容也显示在屏幕上，以一种模态的形式展现。</p>
+
+<h3 id="后台运行">后台运行</h3>
+
+<p>当用户使用 Home 键或者其他方式切换到另一个 App 或进入桌面后。App 将进入后台运行模式。</p>
+
+<p>无法显示内容，无法接收事件，但是能够执行代码。可执行代码的时间有限制。</p>
+
+<p>一般来说，App 在后台运行这个状态可以长达 10 秒，然后就会被系统调整到下一个状态，暂停状态</p>
+
+<h3 id="暂停状态">暂停状态</h3>
+
+<p>暂停状态是 App 最多一个一个状态，表示 App 的一些相关数据仍存在于内存中，但是 App 被悬挂起来，相当于 App 当时的状态被封停了。</p>
+
+<p>在这个状态下，App 可以迅速的返回到活跃状态。</p>
+
+<p>如果长期处于这个状态，并且系统在内存不够用时，会将处于暂停状态的 App 彻底杀死，转换到非运行状态。</p>
+
+<p>用户也可以通过手动杀死的方式，将 App 直接置于该种状态。</p>
+
+<h2 id="常见的状态转换">常见的状态转换</h2>
+
+<p>状态之间是可以相互转换的，下面简述几种常见的方式。</p>
+
+<p>当一个 App 在非运行状态时，用户可以通过点击 App 的 Icon 或者 App 的通知来打开一个 App。
+&gt; 需要注意的是，即使 silent 通知，在这种状态下也是无法唤醒 App 的。</p>
+
+<p>然后 App 进入到活跃状态。</p>
+
+<p>当用户在使用 App 的过程中，会发生一些事件，然后 App 会进入非活跃状态。比如：</p>
+
+<p>收到一条短信、来电时。
+收到一个到期的提醒事项时。
+收到一个通知，并且该通知是属于那种弹出模式时。
+用户双击 Home 键，进入到 App 切换界面。</p>
+
+<p>用户一般不会在这个状态下停留很久的时间，当阻碍 App 成为用户第一焦点的其他消失或被用户处理后，App 马上恢复到活跃状态。</p>
+
+<p>用户摁下 Home 键或者切换到别的 App 时，App 将进入到后台运行状态，在这种状态下，只能在有限的时间内做一些简单的工作，然后 App 将会休眠，进入到暂停状态。</p>
+
+<p>在暂停状态下，App 是什么都干不了的，只能等待用户主动唤醒或者 silent 通知。</p>
+
+<p>休眠的 App 在收到 silent 通知时，将会进入后台状态，又可以在有限的时间内做一些工作。</p>
+
+<blockquote>
+<p>如果使用新闻类 App ,或者系统的邮箱服务时,可以发现,有时候 App 明明没有被打开过,但是在打开时,内容已经做了更新。
+这里就用到了 silent 推送，App 接收到 silent 推送然后进入后台运行模式，做网络请求，得到数据，然后更新 model。这样子用户在下次打开 App 时，将会看到已经更新好的数据，而不是再去做网络请求，这样子很好的提升了用户体验。</p>
+</blockquote>
+
+<p>当 App 在休眠状态太久，并且更多的 App 进入到休眠状态时，系统的内容将不够用，因为 App 在休眠时，为了能够快速的将其激活，是将其放在内存中的。</p>
+
+<p>这样子，用户就感觉好像使用的 App 没有被关闭，一直在运行。</p>
+
+<p>内存不够用时，休眠时间比较长的 App 会被清退出内存，进入到非运行状态。</p>
+
+    </div>
+
+    <div class="post-copyright">
+             
+            <p class="copyright-item">
+                <span>Author:</span>
+                <span>Charvel </span>
+                </p>
+            
+           
+             
+            <p class="copyright-item">
+                    <span>Link:</span>
+                    <a href=https://example.com/2016/2016-07-ios-application-state/>https://example.com/2016/2016-07-ios-application-state/</span>
+            </p>
+            
+             
+            <p class="copyright-item lincese">
+                本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可
+            </p>
+            
+    </div>
+
+  
+    <div class="post-tags">
+        
+        <section>
+                <a href="javascript:window.history.back();">back</a></span> · 
+                <span><a href="https://example.com">home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        <a href="https://example.com/2016/2017-06-What-new-in-cocoatouch/" class="prev" rel="prev" title="WWDC 2016 Session 205 - What&#39;s new in CocoaTouch 总结"><i class="iconfont icon-left"></i>&nbsp;WWDC 2016 Session 205 - What&#39;s new in CocoaTouch 总结</a>
+         
+        
+        <a href="https://example.com/2016/2016-08-about-swift-try/" class="next" rel="next" title="Swift 中的错误处理：try, try?, try!">Swift 中的错误处理：try, try?, try!&nbsp;<i class="iconfont icon-right"></i></a>
+        
+    </div>
+
+    <div class="post-comment">
+          
+                 
+          
+    </div>
+</article>
+          </div>
+		   </main>
+      <footer class="footer">
+    <div class="copyright">
+        &copy;
+        
+        <span itemprop="copyrightYear">2015 - 2019</span>
+        
+        <span class="with-love">
+    	 <i class="iconfont icon-love"></i> 
+         </span>
+         
+            <span class="author" itemprop="copyrightHolder"><a href="https://example.com">Charvel</a> | </span> 
+         
+
+         
+		  <span>Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow">Hugo</a> & <a href="https://github.com/liuzc/leaveit" target="_blank" rel="external nofollow">LeaveIt</a></span> 
+    </div>
+</footer>
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    <script src="/js/vendor_no_gallery.min.js" async=""></script>
+    
+  
+
+
+
+     </div>
+  </body>
+</html>
