@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Charvel&#39;s home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 19 Nov 2017 18:24:28 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 23 Jan 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Aspect 解析</title>
+      <link>https://example.com/2018/2018-01-23-aspect-aop-source-code-reader/</link>
+      <pubDate>Tue, 23 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/2018/2018-01-23-aspect-aop-source-code-reader/</guid>
+      <description>Aspect 解析 Aspect 的代码很少，就两个文件，使用上也比较简单，提供了两个长差不多的方法，用来 Hook NSObject 的类方法和实例方法。
+/// Adds a block of code before/instead/after the current `selector` for a specific class. + (id&amp;lt;AspectToken&amp;gt;)aspect_hookSelector:(SEL)selector withOptions:(AspectOptions)options usingBlock:(id)block error:(NSError **)error; /// Adds a block of code before/instead/after the current `selector` for a specific instance. - (id&amp;lt;AspectToken&amp;gt;)aspect_hookSelector:(SEL)selector withOptions:(AspectOptions)options usingBlock:(id)block error:(NSError **)error;  上面这两个方法最终会调用同一个静态方法，因为类也可以看作是一个对象。
+// for class return aspect_add((id)self, selector, options, block, error); // for instance return aspect_add(self, selector, options, block, error);  理解对象 Aspect hook 流程 要理解一个开源库的使用，最简单的方式就是去看它的 TestCase，而不是一上来就看源码。</description>
+    </item>
     
     <item>
       <title>随便说 iOS 中的 runtime</title>
